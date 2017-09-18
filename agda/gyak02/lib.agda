@@ -4,13 +4,14 @@ module lib where
 
 infixl 5 _∧_
 infixl 4 _,_
-
 infixl 4 _∨_
+infixl 3 _↔_
 
 postulate
-  A B C D : Set -- propositional variables
+  X Y Z : Set -- propositional variables
   
   ⊥ : Set
+  abort : (C : Set) → ⊥ → C
   
   ⊤ : Set
   tt : ⊤
@@ -24,3 +25,9 @@ postulate
   inj₁ : {A B : Set} → A → A ∨ B
   inj₂ : {A B : Set} → B → A ∨ B
   case : {A B : Set}(C : Set) → (A → C) → (B → C) → A ∨ B → C
+
+¬_ : Set → Set
+¬ A = A → ⊥
+
+_↔_ : Set → Set → Set
+A ↔ B = (A → B) ∧ (B → A)
