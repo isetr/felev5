@@ -7,18 +7,18 @@
 #include <algorithm>
 #include <sstream>
 
-static const uint64_t CODE = 0x666;
-static const uint64_t FF = 0xFF;
-static const uint64_t MASK = 0x12345678;
+static const uint32_t CODE = 0x666;
+static const uint32_t FF = 0xFF;
+static const uint32_t MASK = 0x12345678;
 
 std::vector<std::string> readLines(const std::string& filename);
 std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines);
 std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
 void printResult(const std::vector<std::string>& result);
 
-bool isPrime(const uint64_t& n);
-uint64_t hash(const char& letter);
-uint64_t hashWord(const std::string& word);
+bool isPrime(const uint32_t& n);
+uint32_t hash(const char& letter);
+uint32_t hashWord(const std::string& word);
 std::string hashLine(const std::string& line);
 
 int main (int argc, char** argv) {
@@ -78,7 +78,7 @@ void printResult(const std::vector<std::string>& result) {
     }
 }
 
-bool isPrime(const uint64_t& n) {
+bool isPrime(const uint32_t& n) {
     if (n<=1) {
         return false;
     } else if (n<=3) {
@@ -95,20 +95,20 @@ bool isPrime(const uint64_t& n) {
     return true;
 }
 
-uint64_t hash(const char& letter) {
-    uint64_t value = CODE;
+uint32_t hash(const char& letter) {
+    uint32_t value = CODE;
     value <<= (letter % 2 == 0)?6:11;
     value ^= FF;
     return isPrime(value)?value|MASK:value&MASK;
 }
 
-uint64_t hashWord(const std::string& word) {
+uint32_t hashWord(const std::string& word) {
     return
         std::accumulate(
             word.begin(),
             word.end(),
             0,
-            [](uint64_t state, char value) {return state + hash(value);}
+            [](uint32_t state, char value) {return state + hash(value);}
         );
 }
 
