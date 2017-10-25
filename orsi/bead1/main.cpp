@@ -41,7 +41,7 @@ std::vector<std::string> readLines(const std::string& filename) {
     out.reserve(size);
 
     std::string line;
-    while(getline(file, line)) {
+    while(std::getline(file, line)) {
         out.push_back(line);
     }
 
@@ -113,10 +113,9 @@ uint64_t hashWord(const std::string& word) {
 
 std::string hashLine(const std::string& line) {
     std::vector<std::string> words;
-    char* word = std::strtok(line.c_str(), ' ');
-    while(word) {
+    std::string word;
+    while(std::getline(line, word, ' ')) {
         words.push_back(word);
-        word = std::strtok(nullptr, ' ');
     }
     return
         std::accumulate(
