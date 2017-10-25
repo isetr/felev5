@@ -49,11 +49,11 @@ std::vector<std::string> readLines(int argc, char** argv) {
     }
 
     file >> size;
-    std::getline(file, line); // first empty line after the number
     
     out.reserve(size);
     
     std::string line;
+    std::getline(file, line); // first empty line after the number
     while(std::getline(file, line)) {
         out.push_back(line);
     }
@@ -131,5 +131,5 @@ std::string hashLine(const std::string& line) {
     while(words >> word) {
         output << hashWord(word) << " ";
     }
-    return output.str();
+    return output.str().substr(0, output.str().size() - 1);
 }
