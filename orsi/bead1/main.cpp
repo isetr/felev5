@@ -11,7 +11,7 @@ static const uint32_t CODE = 0x666;
 static const uint32_t FF = 0xFF;
 static const uint32_t MASK = 0x12345678;
 
-std::vector<std::string> readLines(const std::string& filename);
+std::vector<std::string> readLines(int argc, char** argv);
 std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines);
 std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
 void printResult(const std::vector<std::string>& result);
@@ -22,10 +22,6 @@ uint32_t hashWord(const std::string& word);
 std::string hashLine(const std::string& line);
 
 int main (int argc, char** argv) {
-    if (argc != 2) {
-        std::cerr << "Missing filename\n";
-        return 1;
-    }
     std::vector<std::string> lines(readLines(argv[1]));
     std::vector<std::future<std::string>> hashedData(hashLines(lines));
     std::vector<std::string> result(process(hashedData));
@@ -33,11 +29,17 @@ int main (int argc, char** argv) {
     return 0;
 }
 
-std::vector<std::string> readLines(const std::string& filename) {
+std::vector<std::string> readLines(int argc, char** argv) {
     std::vector<std::string> out;
-    std::ifstream file(filename);
+    std::ifstream file;
     int size;
     
+    if (argc != 2) {
+        file.open(filename);
+    } else {
+        file.open("input.txt");
+    }
+
     file >> size;
     out.reserve(size);
 
