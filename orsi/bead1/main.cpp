@@ -25,13 +25,13 @@ std::string hashLine(const std::string& line);
 int main (int argc, char** argv) {
     std::vector<std::string> lines(readLines(argc, argv));
 
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
 
     std::vector<std::future<std::string>> hashedData(hashLines(lines));
     std::vector<std::string> result(process(hashedData));
 
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cerr << "Time elapsed: " << std::chrono::duration<double, std::milli>(end - start).count() << " s" << std::endl;
+    auto end = std::chrono::steady_clock::now();
+    std::cerr << "Time elapsed: " << std::chrono::duration<double, std::milli>(end - start).count() * 100 << " sec" << std::endl;
 
     printResult(result);
     return 0;
