@@ -98,7 +98,7 @@ bool isPrime(const uint32_t& n) {
 uint32_t hash(const char& letter) {
     uint32_t value = CODE;
     value <<= (letter % 2 == 0)?6:11;
-    value ^= FF;
+    value ^= letter & FF;
     return isPrime(value)?value|MASK:value&MASK;
 }
 
