@@ -12,9 +12,9 @@ static const uint64_t FF = 0xFF;
 static const uint64_t MASK = 0x12345678;
 
 std::vector<std::string> readLines(const std::string& filename);
-std::vector<std::future<std::string>> hashLines(const std::vector<std::string>& lines);
+std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines);
 std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
-void printResult(const std::vector<std::string>& result);
+void printResult(std::vector<std::string>& result);
 
 bool isPrime(const uint64_t& n);
 uint64_t hash(const char& letter);
@@ -49,18 +49,18 @@ std::vector<std::string> readLines(const std::string& filename) {
     return out;
 }
 
-std::vector<std::future<std::string>> hashLines(const std::vector<std::string>& lines) {
+std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines) {
     std::vector<std::future<std::string>> result(lines.size());
     std::transform(
         lines.begin(),
         lines.end(),
         result.begin(),
-        [](const std::string& line) {return std::async(std::launch::async, hashLine, line);}
+        [](std::string& line) {return std::async(std::launch::async, hashLine, line);}
     );
     return result;
 }
 
-std::vector<std::string> process(const std::vector<std::future<std::string>>& hashedLines) {
+std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines) {
     std::vector<std::string> result(hashedLines.size());
     std::transform(
         hashedLines.begin(),
@@ -71,7 +71,7 @@ std::vector<std::string> process(const std::vector<std::future<std::string>>& ha
     return result;
 }
 
-void printResult(const std::vector<std::string>& result) {
+void printResult(std::vector<std::string>& result) {
     std::ofstream file("output.txt");
     for(auto& line : result) {
         file << line << " " << std::endl;
