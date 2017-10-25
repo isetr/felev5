@@ -2,7 +2,7 @@
 #include <vector>
 #include <future>
 #include <iostream>
-#include <cstring>
+#include <string>
 #include <numeric>
 #include <algorithm>
 
