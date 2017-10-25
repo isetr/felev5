@@ -31,7 +31,7 @@ int main (int argc, char** argv) {
     std::vector<std::string> result(process(hashedData));
 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cerr << "Time elpased: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << "s" << std::endl;
+    std::cerr << "Time elpased: " << std::chrono::duration<double, std::milli>(end - start).count() << " s" << std::endl;
 
     printResult(result);
     return 0;
