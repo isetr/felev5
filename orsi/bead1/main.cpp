@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <numeric>
+#include <algorithm>
 
 static const uint64_t CODE = 0x666;
 static const uint64_t FF = 0xFF;
