@@ -65,7 +65,7 @@ std::vector<std::string> process(const std::vector<std::future<std::string>>& ha
         hashedLines.begin(),
         hashedLines.end(),
         result.begin(),
-        [](const std::future<std::string>& line) {return line.get();}
+        [](std::future<std::string>& line) {return line.get();}
     );
     return result;
 }
@@ -73,7 +73,7 @@ std::vector<std::string> process(const std::vector<std::future<std::string>>& ha
 void printResult(const std::vector<std::string>& result) {
     std::ofstream file("output.txt");
     for(auto& line : result) {
-        file << result << " " << std::endl;
+        file << line << " " << std::endl;
     }
 }
 
