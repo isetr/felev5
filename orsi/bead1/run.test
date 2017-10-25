@@ -10,4 +10,8 @@ echo "8  thread: " & ./a.out ./big.8.txt
 echo "9  thread: " & ./a.out ./big.9.txt
 echo "10 thread: " & ./a.out ./big.10.txt
 echo "11 thread: " & ./a.out ./big.11.txt
+<<<<<<< HEAD
 echo "12 thread: " & ./a.out ./big.12.txt
+=======
+echo "12 thread: " & ./a.out ./big.12.txt
+>>>>>>> c577cdcabd4beb621f320b2d29a7471336e9326b
