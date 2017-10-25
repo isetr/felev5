@@ -31,7 +31,7 @@ int main (int argc, char** argv) {
     std::vector<std::string> result(process(hashedData));
 
     auto end = std::chrono::steady_clock::now();
-    std::cerr << "Time elapsed: " << std::chrono::duration<double, std::milli>(end - start).count() * 100 << " sec" << std::endl;
+    std::cerr << "Time elapsed: " << std::chrono::duration<double, std::milli>(end - start).count() / 100 << " sec" << std::endl;
 
     printResult(result);
     return 0;
