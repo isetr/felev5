@@ -34,7 +34,7 @@ std::vector<std::string> readLines(std::string filename) {
     return out;
 }
 
-std::vector<std::future<std::string>> hashLines(std::vector<std::string>> lines) {
+std::vector<std::future<std::string>> hashLines(std::vector<std::string> lines) {
     std::vector<std::future<std::string>> out;
     return out;
 }
