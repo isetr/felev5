@@ -112,7 +112,12 @@ uint64_t hashWord(const std::string& word) {
 }
 
 std::string hashLine(const std::string& line) {
-    std::vector<std::string> words(std::strtok(line, " "));
+    std::vector<std::string> words;
+    char* word = std::strtok(line, " ");
+    while(word) {
+        words.push_back(word);
+        word = std::strtok(line, " ");
+    }
     return
         std::accumulate(
             words.begin(),
