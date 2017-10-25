@@ -14,7 +14,7 @@ static const uint64_t MASK = 0x12345678;
 std::vector<std::string> readLines(const std::string& filename);
 std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines);
 std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
-void printResult(std::vector<std::string>& result);
+void printResult(const std::vector<std::string>& result);
 
 bool isPrime(const uint64_t& n);
 uint64_t hash(const char& letter);
@@ -71,7 +71,7 @@ std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLi
     return result;
 }
 
-void printResult(std::vector<std::string>& result) {
+void printResult(const std::vector<std::string>& result) {
     std::ofstream file("output.txt");
     for(auto& line : result) {
         file << line << " " << std::endl;
