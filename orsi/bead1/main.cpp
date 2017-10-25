@@ -42,7 +42,7 @@ std::vector<std::string> readLines(int argc, char** argv) {
     std::ifstream file;
     int size;
     
-    if (argc != 2) {
+    if (argc == 2) {
         file.open(argv[1]);
     } else {
         file.open("input.txt");
