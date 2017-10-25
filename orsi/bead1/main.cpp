@@ -17,8 +17,8 @@ std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines)
 std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
 void printResult(const std::vector<std::string>& result);
 
-bool isPrime(const uint32_t& n);
-uint32_t hash(const char& letter);
+bool isPrime(uint32_t n);
+uint32_t hash(char letter);
 uint32_t hashWord(const std::string& word);
 std::string hashLine(const std::string& line);
 
@@ -90,7 +90,7 @@ void printResult(const std::vector<std::string>& result) {
     }
 }
 
-bool isPrime(const uint32_t& n) {
+bool isPrime(uint32_t n) {
     if (n<=1) {
         return false;
     } else if (n<=3) {
@@ -107,7 +107,7 @@ bool isPrime(const uint32_t& n) {
     return true;
 }
 
-uint32_t hash(const char& letter) {
+uint32_t hash(char letter) {
     uint32_t value = CODE;
     value <<= (letter % 2 == 0)?6:11;
     value ^= letter & FF;
@@ -116,7 +116,7 @@ uint32_t hash(const char& letter) {
 
 uint32_t hashWord(const std::string& word) {
     return
-        std::accumulate(
+        std::reduce(
             word.begin(),
             word.end(),
             0,
