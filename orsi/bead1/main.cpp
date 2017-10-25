@@ -95,15 +95,16 @@ bool isPrime(const uint64_t& n) {
 }
 
 uint64_t hash(const char& letter) {
-    uint64_t value = CODE <<= (letter % 2 == 0)?6:11 ^= FF;
+    uint64_t value = CODE <<= (letter % 2 == 0)?6:11;
+    value ^= FF;
     return isPrime(value)?value|MASK:value&MASK;
 }
 
 std::string hashWord(const std::string& word) {
     return
         std::accumulate(
-            word,
-            word + word.length(),
+            word.c_str(),
+            word.c_str() + word.length(),
             0,
             [](uint64_t state, const char& value) {return state + hash(value)}
         );
