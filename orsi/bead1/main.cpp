@@ -5,6 +5,7 @@
 #include <string>
 #include <numeric>
 #include <algorithm>
+#include <sstream>
 
 static const uint64_t CODE = 0x666;
 static const uint64_t FF = 0xFF;
@@ -12,7 +13,7 @@ static const uint64_t MASK = 0x12345678;
 
 std::vector<std::string> readLines(const std::string& filename);
 std::vector<std::future<std::string>> hashLines(const std::vector<std::string>& lines);
-std::vector<std::string> process(const std::vector<std::future<std::string>>& hashedLines);
+std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
 void printResult(const std::vector<std::string>& result);
 
 bool isPrime(const uint64_t& n);
@@ -112,16 +113,11 @@ uint64_t hashWord(const std::string& word) {
 }
 
 std::string hashLine(const std::string& line) {
-    std::vector<std::string> words;
+    std::stringstream words(line);
+    std::stringstream output;
     std::string word;
-    while(std::getline(line, word, ' ')) {
-        words.push_back(word);
+    while(words >> word) {
+        output << hashWord(word) << " ";
     }
-    return
-        std::accumulate(
-            words.begin(),
-            words.end(),
-            "",
-            [](std::string& state, const std::string& value){return state + " " + hashWord(value);}
-        );
+    return output.str();
 }
