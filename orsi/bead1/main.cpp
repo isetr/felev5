@@ -60,12 +60,12 @@ std::vector<std::future<std::string>> hashLines(const std::vector<std::string>& 
 }
 
 std::vector<std::string> process(const std::vector<std::future<std::string>>& hashedLines) {
-    std::vector<std::string> result(hashLines.size());
+    std::vector<std::string> result(hashedLines.size());
     std::transform(
         hashedLines.begin(),
         hashedLines.end(),
         result.begin(),
-        [](std::future<std::string>>& line) {return line.get();}
+        [](const std::future<std::string>& line) {return line.get();}
     );
     return result;
 }
@@ -73,19 +73,20 @@ std::vector<std::string> process(const std::vector<std::future<std::string>>& ha
 void printResult(const std::vector<std::string>& result) {
     std::ofstream file("output.txt");
     for(auto& line : result) {
-        ofstream << result << " " << std::endl;
+        file << result << " " << std::endl;
     }
 }
 
 bool isPrime(const uint64_t& n) {
     if (n<=1) {
         return false;
-    else if (n<=3) {
+    } else if (n<=3) {
         return true;
-    else if (n%2==0||n%3==0) {
+    } else if (n%2==0||n%3==0) {
         return false;
+    }
     int i=5;
-    while(i*i < n){
+    while(i*i < n) {
         if (n%i==0||n%(i+2)==0)
             return false;
         i=i+6;
