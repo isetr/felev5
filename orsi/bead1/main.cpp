@@ -49,8 +49,10 @@ std::vector<std::string> readLines(int argc, char** argv) {
     }
 
     file >> size;
+    std::getline(file, line); // first empty line after the number
+    
     out.reserve(size);
-
+    
     std::string line;
     while(std::getline(file, line)) {
         out.push_back(line);
