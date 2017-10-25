@@ -6,6 +6,7 @@
 #include <numeric>
 #include <algorithm>
 #include <sstream>
+#include <chrono>
 
 static const uint32_t CODE = 0x666;
 static const uint32_t FF = 0xFF;
@@ -22,9 +23,16 @@ uint32_t hashWord(const std::string& word);
 std::string hashLine(const std::string& line);
 
 int main (int argc, char** argv) {
-    std::vector<std::string> lines(readLines(argv[1]));
+    std::vector<std::string> lines(readLines(argc, argv));
+
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
     std::vector<std::future<std::string>> hashedData(hashLines(lines));
     std::vector<std::string> result(process(hashedData));
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cerr << "Time elpased: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << "s" << std::endl;
+
     printResult(result);
     return 0;
 }
@@ -35,7 +43,7 @@ std::vector<std::string> readLines(int argc, char** argv) {
     int size;
     
     if (argc != 2) {
-        file.open(filename);
+        file.open(argv[1]);
     } else {
         file.open("input.txt");
     }
