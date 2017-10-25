@@ -53,8 +53,8 @@ std::vector<std::future<std::string>> hashLines(std::vector<std::string> lines) 
         std::transform(
             lines.begin(),
             lines.end(),
-            lines.being(),
-            [](auto& line) {return std::async(std::launch::async, hashLine, line);}
+            lines.begin(),
+            [](std::string& line) {return std::async(std::launch::async, hashLine, line);}
         );
 }
 
@@ -63,8 +63,8 @@ std::vector<std::string> process(std::vector<std::future<std::string>> hashedLin
         std::transform(
             hashedLines.begin(),
             hashedLines.end(),
-            hashedLines.being(),
-            [](auto& line) {return line.get();}
+            hashedLines.begin(),
+            [](std::future<std::string>>& line) {return line.get();}
         );
 }
 
