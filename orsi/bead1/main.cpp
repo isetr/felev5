@@ -104,10 +104,10 @@ uint64_t hash(const char& letter) {
 std::string hashWord(const std::string& word) {
     return
         std::accumulate(
-            word.c_str(),
-            word.c_str() + word.length(),
+            word.being(),
+            word.end(),
             0,
-            [](uint64_t state, const char& value) {return state + hash(value);}
+            [](uint64_t state, char value) {return state + hash(value);}
         );
 }
 
