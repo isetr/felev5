@@ -17,7 +17,7 @@ void printResult(const std::vector<std::string>& result);
 
 bool isPrime(const uint64_t& n);
 uint64_t hash(const char& letter);
-std::string hashWord(const std::string& word);
+uint64_t hashWord(const std::string& word);
 std::string hashLine(const std::string& line);
 
 int main (int argc, char** argv) {
@@ -101,7 +101,7 @@ uint64_t hash(const char& letter) {
     return isPrime(value)?value|MASK:value&MASK;
 }
 
-std::string hashWord(const std::string& word) {
+uint64_t hashWord(const std::string& word) {
     return
         std::accumulate(
             word.begin(),
