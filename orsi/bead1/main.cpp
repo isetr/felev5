@@ -1,9 +1,10 @@
 #include <fstream>
 #include <vector>
 #include <future>
+#include <iostream>
 
 std::vector<std::string> readLines(std::string filename);
-std::vector<std::future<std::string>> hashLines(std::vector<std::string>> lines);
+std::vector<std::future<std::string>> hashLines(std::vector<std::string> lines);
 void process(std::vector<std::future<std::string>> hashedLines);
 
 int main (int argc, char** argv) {
@@ -20,10 +21,9 @@ int main (int argc, char** argv) {
 std::vector<std::string> readLines(std::string filename) {
     std::vector<std::string> out;
     std::ifstream file(filename);
+    int size;
     
-    int size = 0;
     file >> size;
-
     out.reserve(size);
 
     std::string line;
