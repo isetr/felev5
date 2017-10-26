@@ -1,13 +1,13 @@
 g++ main.cpp -pthread -std=c++11 -O2
-echo "1  thread: " & ./a.exe ./big.1.txt
-echo "2  thread: " & ./a.exe ./big.2.txt
-echo "3  thread: " & ./a.exe ./big.3.txt
-echo "4  thread: " & ./a.exe ./big.4.txt
-echo "5  thread: " & ./a.exe ./big.5.txt
-echo "6  thread: " & ./a.exe ./big.6.txt
-echo "7  thread: " & ./a.exe ./big.7.txt
-echo "8  thread: " & ./a.exe ./big.8.txt
-echo "9  thread: " & ./a.exe ./big.9.txt
-echo "10 thread: " & ./a.exe ./big.10.txt
-echo "11 thread: " & ./a.exe ./big.11.txt
-echo "12 thread: " & ./a.exe ./big.12.txt
+echo "1  thread: " & ./a.exe ./input/big.1.txt
+echo "2  thread: " & ./a.exe ./input/big.2.txt
+echo "3  thread: " & ./a.exe ./input/big.3.txt
+echo "4  thread: " & ./a.exe ./input/big.4.txt
+echo "5  thread: " & ./a.exe ./input/big.5.txt
+echo "6  thread: " & ./a.exe ./input/big.6.txt
+echo "7  thread: " & ./a.exe ./input/big.7.txt
+echo "8  thread: " & ./a.exe ./input/big.8.txt
+echo "9  thread: " & ./a.exe ./input/big.9.txt
+echo "10 thread: " & ./a.exe ./input/big.10.txt
+echo "11 thread: " & ./a.exe ./input/big.11.txt
+echo "12 thread: " & ./a.exe ./input/big.12.txt

@@ -1,0 +1,140 @@
+\documentclass[12pt]{article}
+
+%margó méretek
+\usepackage[a4paper,
+inner = 25mm,
+outer = 25mm,
+top = 25mm,
+bottom = 25mm]{geometry}
+
+
+%packagek, ha használni akarunk valamit menet közben
+\usepackage{lmodern}
+\usepackage[magyar]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{setspace}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{setspace}
+
+\setstretch{1.2}
+\begin{document}
+	
+	
+
+% a címlap, túl sokat nem kell módosítani rajta, leszámítva a neved/neptunodat (dátumot)
+\begin{titlepage}
+	\vspace*{0cm}
+	\centering
+	\begin{tabular}{cp{1cm}c}
+		\begin{minipage}{4cm}
+			\vspace{0pt}
+			\includegraphics[width=1\textwidth]{elte_cimer}
+		\end{minipage} & &
+		\begin{minipage}{7cm}
+			\vspace{0pt}Eötvös Loránd Tudományegyetem \vspace{10pt} \newline
+			Informatikai Kar \vspace{10pt} \newline
+			Programozási Nyelvek és Fordítóprogramok Tanszék
+		\end{minipage}
+	\end{tabular}
+	
+	\vspace*{0.2cm}
+	\rule{\textwidth}{1pt}
+	
+	\vspace*{3cm}
+	{\Huge Osztott rendszerek specifikációja és implementációja }
+	
+	\vspace*{0.5cm}
+	{\normalsize IP-08bORSIG}
+	
+	\vspace{2cm}
+	{\huge Dokumentáció az \textit{1}. beadandóhoz}
+	
+	\vspace*{5cm}
+	
+	{\large \verb|Szalóki Sándor| } % (név)
+	
+	{\large \verb|H8L59S| }  % (neptun)
+		
+	
+	\vfill
+	
+	\vspace*{1cm}
+	2017. október 26. % (dátum)
+\end{titlepage}
+
+\section{Kitűzött feladat}
+A harcoknak évek óta vége, törékeny béke uralkodott a bolygón. Míg korábban az emberek hősei és megmentői voltunk, akik segítettek a rászorulókon, most az ügynökeinket (tévesen) háborús bűnökkel vádolják, így inkognitóban kell élniük az életüket. A konfliktus azonban egyre fokozódik, így a bújkálásaitoknak véget kell vetni, ehhez azonban megbízható formáját kell választanunk a kommunikációnak.
+
+A kiküldött üzenetek tartalmára vonatkozóan külön titkosítás a protokollban nincsen, mivel annak megfelelő értelmezése egy előre definiált fogalomrendszer mentén jelenti a pontos információkat (azaz mások számára önmagában értelmetlen vagy érdektelen), ehhez azonban a kapott adat megbízhatósága létfontosságú.
+
+Ennek érdekében két féle jelből áll össze a pontos információ: A főparancsnokság (HQ) által, és csak tőlük kibocsátott ellenőrző kód (hash), valamint a kiküldött üzenet.
+
+Minden ügynökünk tisztában van az ellenörző kódot előállító művelettel, így a kapott üzenetre ezt alkalmazva meg tud bizonyosodni arról, hogy azt menet közben nem módosították. A számüzetés miatt azonban nem áll rendelkezésükre a korábbi csúcstechnológia, így csupán a lassabb hardverek biztosította környezeten tudnak dolgozni. Annak érdekében, hogy minél hamarabb tudják a kapott információt hitelesíteni, megfelelő szoftveres támogatásra lesz szükségük, melyet maguknak kell implementálni. Örömmel konstatálták, hogy a számítógépekben a processzor több maggal rendelkezik, ezáltal több végrehajtási szálat is támogat egyidőben, így párhuzamosítva az említett módszert lényegesen gyorsabban juthatnak el céljaikhoz.
+
+Adott egy input fájl, melyben bizalmas adatokat tartalmazó szöveget találhatunk. Arról azonban nem tudunk közvetlen meggyőződni, hogy az információk helyesek és nem kerültek módosításra, így a kriptográfiában megismertek módjára hashelnünk kell az adatokat, hogy ellenőrizhessük, hogy az a hivatalos ellenőrzőkóddal megegyezik e, hogy nyugodtan támaszkodjunk az ott olvasottra.
+
+Az inputfájl felépítése az alábbi: Az első sorban egy N, nemnegatív egész szám olvasható, ezt követően összesen N sornyi szöveges információt találhatunk. Arra vonatkozóan, hogy egy sorban pontosan hány szó található, nincs közvetlen információnk, de mindegyikben legalább 1, és legfeljebb 100.
+
+Egy szó hashértéke a benne szereplő betűk hashértékének összegeként áll elő. Egy sor/szöveg hashértéke a benne szerplő szavak hashértékének szóközzel vett konkatenációjaként definiálható.
+
+Feltehetjük, hogy a szövegben az angol ábécé betűit használó szavak (tehát magyar/orosz/koreai stb. készletbe tartozó karakterek nem), valamint általános írásjelek (pont, vessző, kérdő- és felkiáltójel, aposztróf, kettőspont stb.) találhatóak.
+
+Annak érdekében, hogy hatékonyan működjön a programunk, a hasht ne szavanként, hanem soronként állítsuk elő, így egyszerre több sorhoz tartozó értéket párhuzamosan tudunk kiszámolni. A program olvassa be az adatokat, majd N folymatot indítva számítsa ki az egyes sorokhoz tartozó hash-értékeket, majd az így kapott adatokat írja ki az "output.txt" fájlba.
+
+\section{Felhasználói dokumentáció}
+
+A program feltételezi, hogy a futtatható fájl mellett jelen van egy input.txt, melynek a formátuma helyes. A program futása végén az eredményt egy output.txt fájlba írja.
+
+\subsection{Rendszer-követelmények, telepítés}
+
+A programunk több platformon is futtatható, dinamikus függősége nincsen, bármelyik, manapság használt PC-n működik. Külön telepíteni nem szükséges, elég a futtatható állományt elhelyezni a számítógépen.
+
+\subsection{A program használata}
+
+A program a generált .exe fájl futtatásával használható akár intézőből is, ekkor a fájl melletti input.txt fájl tartalmát dolgozza fel. A program indítható command prompt-ból is, akkor adható paraméterként fájl, amit fel kívűnunk dolgozni. 
+
+A futtatható állomány mellett kell elhelyezni az \textit{input.txt} nevű fájlt, mely a bemeneti adatokat tartalmazza, a fenti specifikációnak megfelelően. Figyeljünk az ebben található adatok helyességére és megfelelő tagolására, mivel az alkalmazás külön ellenőrzést nem végez erre vonatkozóan. A futás során az alkalmazás mellett található \textit{output.txt} fájl tartalmazza a kapott eredményt, ahol az \textit{i}-ik sor a bemeneti fájl \textit{i}-ik sorának szavainak hash értékei állnak.
+
+\section{Fejlesztői dokumentáció}
+
+A program nagyban épül a C++ 11-es STL függvényeire. A gyorsaság érdekében a program soronként párhuzamosítja a számolást, erre std::future-t használunk. Az egyszerűség érdekében funkcionális programozásból ismert map, illetve fold műveleteket az std::transform, illetve az std::accumulate függvényekkel alkalmazzuk. 
+
+\subsection{Megoldási mód}
+
+A feladatot több részre osztjuk. Első lépésben beolvassuk az adott fájlból a sorokat. A beolvasott sorokat párhuzamosítva soronként feldolgozzuk. A szálon a számolást megvárjuk, majd összeszedjük a hash-elt eredményeket. Miután minden sor kész, kiírjuk az eredményt az output.txt fájlba.
+
+\subsection{Implementáció}
+
+Első lépésben a sorokat beolvassuk egy \verb|std::vector<std::string>| vectorba. Következő lépésben használva az \verb|std::transform| függvényt létrehozzuk az \verb|std::vector<std::future<std::string>>| vectort. Ebben a vectorban a sorokra alkalmazzuk a hash függvényt. A hash függvény működését 2 lépésben érjük el. A sor minden szavára alkalmazzuk a hash függvényt, majd ezeket egymás mellé írjuk. Szavak hashelésére \verb|std::accumulate| függvényt használjuk. Következő lépésben megvárjuk a szálakon a hash végét, majd kiírjuk az eredményt az output.txt fásjlba. 
+
+\subsection{Fordítás menete}
+
+A programunk forráskódját a \verb|main.cpp| fájl tartalmazza. A fordításhoz elengedhetetlen egy \verb|C++11| szabványt támogató fordítóprogram a rendszeren. Ehhez használhatjuk az \textit{MSVC}, \textit{g++} és \textit{clang} bármelyikét. A fordítás menete (4.9.2-es verziójú g++ használata esetén) a következő: \verb|'g++ main.cpp -std=c++11'|. A speciális, \verb|-std=c++11| kapcsoló azért szükséges, mert alapértelmezés szerint ez a verziójú fordítóprogram még a régi, C++98-as szabványt követi, melyben a felhasznált nyelvi elemek még nem voltak jelen.
+
+
+\subsection{Tesztelés}
+
+A program tesztelésésre egy egyszerű test scriptet írtam, amely kihasználja, hogy a program paraméterül várhat egy fájlt. Egy 550 ezer karakteres fájlt módosítottam különböző tesztesetek előállítására. A sorok számával megadható a szálak száma, így 1-től 12-ig elkészítettem a megfelelő sorú fájlokat. (Ekkor az 1 sor szimulálja a szekvenciális esetet).
+
+\begin{tabular}{ l r }
+	Szálak száma & Másodperc \\ \hline
+	1  &  1.91041  \\
+	2  &  1.0498  \\
+	3  &  0.887191  \\
+	4  &  0.702312  \\
+	5  &  0.897408  \\
+	6  &  0.672741  \\
+	7  &  0.687076  \\
+	8  &  0.610146  \\
+	9  &  0.633025  \\
+	10 &  0.618567  \\
+	11 &  0.669199  \\
+	12 &  0.630693  \\
+\end{tabular}
+
+\end{document}
