@@ -86,7 +86,7 @@ const std::vector<std::string> process(std::vector<std::future<std::string>>& ha
 void printResult(const std::vector<std::string>& result) {
     std::ofstream file("output.txt");
     for(auto& line : result) {
-        file << line << "\n";
+        file << line << std::endl;
     }
 }
 
