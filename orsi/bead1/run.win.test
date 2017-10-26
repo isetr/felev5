@@ -1,4 +1,4 @@
-g++ main.cpp -pthread -std=c++11 -O2 
+g++ main.cpp -pthread -std=c++11 -O2
 echo "1  thread: " & ./a.exe ./big.1.txt
 echo "2  thread: " & ./a.exe ./big.2.txt
 echo "3  thread: " & ./a.exe ./big.3.txt

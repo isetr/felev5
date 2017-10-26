@@ -12,9 +12,9 @@ static const uint32_t CODE = 0x666;
 static const uint32_t FF = 0xFF;
 static const uint32_t MASK = 0x12345678;
 
-std::vector<std::string> readLines(int argc, char** argv);
+const std::vector<std::string> readLines(int argc, char** argv);
 std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines);
-std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
+const std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines);
 void printResult(const std::vector<std::string>& result);
 
 bool isPrime(uint32_t n);
@@ -37,7 +37,7 @@ int main (int argc, char** argv) {
     return 0;
 }
 
-std::vector<std::string> readLines(int argc, char** argv) {
+const std::vector<std::string> readLines(int argc, char** argv) {
     std::vector<std::string> out;
     std::ifstream file;
     int size;
@@ -72,7 +72,7 @@ std::vector<std::future<std::string>> hashLines(std::vector<std::string>& lines)
     return result;
 }
 
-std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines) {
+const std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLines) {
     std::vector<std::string> result(hashedLines.size());
     std::transform(
         hashedLines.begin(),
@@ -86,7 +86,7 @@ std::vector<std::string> process(std::vector<std::future<std::string>>& hashedLi
 void printResult(const std::vector<std::string>& result) {
     std::ofstream file("output.txt");
     for(auto& line : result) {
-        file << line << " " << std::endl;
+        file << line << "\n";
     }
 }
 
@@ -116,7 +116,7 @@ uint32_t hash(char letter) {
 
 uint32_t hashWord(const std::string& word) {
     return
-        std::reduce(
+        std::accumulate(
             word.begin(),
             word.end(),
             0,
@@ -131,5 +131,5 @@ std::string hashLine(const std::string& line) {
     while(words >> word) {
         output << hashWord(word) << " ";
     }
-    return output.str().substr(0, output.str().size() - 1);
+    return output.str();
 }
