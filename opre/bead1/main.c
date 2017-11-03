@@ -195,6 +195,7 @@ void drawMenu() {
                     ++path;
                 }
                 participants = realloc(participants, (count--) * sizeof(struct Apply));
+                saveFile(participants, count);
             break;
             case 'x':
             case 'X':
