@@ -7,6 +7,7 @@
 
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef int bool;
 #define true 1
@@ -76,12 +77,12 @@ struct ApplyRead getDataFromLine(char* line) {
 }
 
 void drawMenu() {
-    char menu = 'o';
-    while (menu != 'x' || menu != 'X') {
+    char menu[1];
+    do {
         printf("\n** Menu **\n1 - Uj jelentkezo\n2 - Nevsor\n3 - Utak\nX - Kilepes\nValasztott menupont: ");
         scanf("%c", menu);
-
-    }
+        printf("%c", menu);
+    } while(menu[0] != 'X' && menu[0] != 'x');
 }
 
 int main(int argc, char** argv) {
