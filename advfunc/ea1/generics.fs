@@ -1,5 +1,10 @@
 module Generics =
 
+    type UNIT =
+        | UNIT
+    with
+        static member op_Equality (_: UNIT, _: UNIT) = true    
+
     type PAIR<'A, 'B> = 
         | PAIR of 'A * 'B
     with
@@ -17,17 +22,24 @@ module Generics =
             | LEFT a, LEFT b -> a = b
             | _, _ -> false
 
+    type CON<'A> =
+        | CON of string * 'A
+    with
+        static member op_Equality (l, r) =
+            match l, r with
+            | CON (a, b), CON (c, d) -> a = c && b = d
+
     type Generic<'A, 'B> =
-        | UNIT
-        | P of PAIR<'A, 'B>
-        | E of EITHER<'A, 'B>
+        | U of CON<UNIT>
+        | P of CON<PAIR<'A, 'B>>
+        | E of CON<EITHER<'A, 'B>>
     with    
         static member op_Equality (l, r) =
             match l, r with
-            | UNIT, UNIT -> true
+            | U _, U _ -> true
             | P a, P b -> a = b
             | E a, E b -> a = b
-            | _, _ -> false
+            | _, _ -> false    
 
 module Model =
 
@@ -45,13 +57,13 @@ module FromModel =
 
     let fromList (a: List<'A>) =
         match a with
-        | Nil -> UNIT  
-        | Cons (x, xs) -> P (PAIR (x, xs))
+        | Nil -> U (CON ("Nil", UNIT))
+        | Cons (x, xs) -> P (CON ("Cons", PAIR (x, xs)))
 
     let fromTree (a: Tree<'A, 'B>) =
         match a with
-        | Leaf a -> E (RIGHT a)
-        | Node (b, ltr, rtr) -> E (LEFT (b, ltr, rtr))
+        | Leaf a -> E (CON ("Leaf", RIGHT a))
+        | Node (b, ltr, rtr) -> E (CON ("Node", LEFT (b, ltr, rtr)))
 
 module ModelEquality =
     open Model
