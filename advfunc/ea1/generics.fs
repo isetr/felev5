@@ -181,6 +181,18 @@ module Program =
 
     [<EntryPoint>]
     let main argv =
-        printfn "%A" TestList
+        printfn "\n%s" (
+            if List.forall id TestList then
+                "Every test passed. Custom Equality is working."
+            else
+                "Custom Equality tests failed: \n" + 
+                (
+                    TestList
+                    |> List.mapi (fun i b -> sprintf "Test #%d" i, b)
+                    |> List.filter (snd >> not)
+                    |> List.map fst
+                    |> List.reduce (fun l r -> l + "\n" + r)
+                )    
+        )
         printfn "\n%s\n%s" (prettyPrint Lists) (prettyPrint Trees)
         0
