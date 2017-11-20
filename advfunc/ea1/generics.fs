@@ -1,5 +1,3 @@
-open System.Security.AccessControl
-open System.Web.UI
 module Generics =
 
     type UNIT =
@@ -41,7 +39,7 @@ module Generics =
     with
         static member op_Equality (l, r) =
             match l, r with
-            | CON (a, b), CON (c, d) -> a = c && b = d
+            | CON (_, a), CON (_, b) -> a = b
 
         override this.ToString() =
             match this with
