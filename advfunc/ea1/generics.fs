@@ -1,72 +1,113 @@
 module Generics =
 
+    [<CustomEquality; NoComparison>]
     type UNIT =
         | UNIT
-    with
-        static member op_Equality (_: UNIT, _: UNIT) = true  
-
+    with    
         override this.ToString() = "" 
 
-    type PAIR<'A, 'B> = 
+        override l.Equals r = 
+            match r with
+            | :? UNIT -> true
+            | _ -> false
+
+        override this.GetHashCode() = 0
+
+    [<CustomEquality; NoComparison>]
+    type PAIR<'A, 'B when 'A : equality and 'B : equality> = 
         | PAIR of 'A * 'B
     with
-        static member op_Equality (l, r) =
-            match l, r with
-            | PAIR (a, b), PAIR (c, d) -> a = c && b = d
-
-        override this.ToString() =
-            match this with
+        override p.ToString() =
+            match p with
             | PAIR (a, b) -> "(" + a.ToString() + " " + b.ToString() + ")" 
 
-    type EITHER<'A, 'B> =
+        override l.Equals r =
+            match r with
+            | :? PAIR<'A, 'B> as r ->
+                match l, r with
+                | PAIR (a, b), PAIR (c, d) -> a = c && b = d
+            | _ -> false
+
+        override this.GetHashCode() =
+            match this with
+            | PAIR (a, b) -> a.GetHashCode() + b.GetHashCode() 
+
+    [<CustomEquality; NoComparison>]
+    type EITHER<'A, 'B when 'A : equality and 'B : equality> =
         | RIGHT of 'A
         | LEFT of 'B
     with
-        static member op_Equality (l, r) =
-            match l, r with
-            | RIGHT a, RIGHT b -> a = b
-            | LEFT a, LEFT b -> a = b
-            | _, _ -> false
-
-        override this.ToString() =        
-            match this with
+        override e.ToString() =        
+            match e with
             | RIGHT a -> a.ToString()
             | LEFT a -> a.ToString()
-       
 
-    type CON<'A> =
+        override l.Equals r =
+            match r with
+            | :? EITHER<'A, 'B> as r ->
+                match l, r with
+                | RIGHT a, RIGHT b -> a = b
+                | LEFT a, LEFT b -> a = b
+                | _, _ -> false
+            | _ -> false
+
+        override this.GetHashCode() =
+            match this with
+            | RIGHT a -> a.GetHashCode()
+            | LEFT a -> a.GetHashCode()        
+
+    [<CustomEquality; NoComparison>]
+    type CON<'A when 'A : equality> =
         | CON of string * 'A
     with
-        static member op_Equality (l, r) =
-            match l, r with
-            | CON (_, a), CON (_, b) -> a = b
+        override c.ToString() =
+            match c with
+            | CON (s, a) -> "(" + s + " " + a.ToString() + ")"
 
-        override this.ToString() =
+        override l.Equals r =
+            match r with
+            | :? CON<'A> as r ->
+                match l, r with
+                | CON (_, a), CON (_, b) -> a = b
+            | _ -> false
+
+        override this.GetHashCode() =
             match this with
-            | CON (s, a) -> "(" + s + " " + a.ToString() + ")"        
+            | CON (s, a) -> s.GetHashCode() + a.GetHashCode()        
 
-    type Generic<'A, 'B> =
+    [<CustomEquality; NoComparison>]
+    type Generic<'A, 'B when 'A : equality and 'B : equality> =
         | U of CON<UNIT>
         | P of CON<PAIR<'A, 'B>>
         | E of CON<EITHER<'A, 'B>>
     with    
-        static member op_Equality (l, r) =
-            match l, r with
-            | U _, U _ -> true
-            | P a, P b -> a = b
-            | E a, E b -> a = b
-            | _, _ -> false
-
         override this.ToString() =
             match this with
             | U u -> u.ToString()
             | P a -> a.ToString()
-            | E a -> a.ToString()        
+            | E a -> a.ToString()
+     
+        override l.Equals r =
+            match r with
+            | :? Generic<'A, 'B> as r ->
+                match l, r with
+                | U _, U _ -> true
+                | P (CON (_, a)), P (CON (_, b)) -> PAIR.Equals (a, b)
+                | E (CON (_, a)), E (CON (_, b)) -> EITHER.Equals (a, b)
+                | _, _ -> false
+            | _ -> false
+
+        override this.GetHashCode() =
+            match this with
+            | U u -> u.GetHashCode()
+            | P p -> p.GetHashCode()
+            | E e -> e.GetHashCode()      
 
 module Model =
     open Generics
     
-    type List<'A> =
+    [<CustomEquality; NoComparison>]
+    type List<'A when 'A : equality> =
         | Nil
         | Cons of 'A * List<'A>    
     with
@@ -75,21 +116,32 @@ module Model =
             | Nil -> U (CON ("Nil", UNIT))
             | Cons (x, xs) -> P (CON ("Cons", PAIR (x, xs)))
         
-        static member op_Equality (l, r) = List.FromList l = List.FromList r
+        override l.Equals r =
+            match r with
+            | :? List<'A> as r -> List.FromList l = List.FromList r
+            | _ -> false
+
+        override l.GetHashCode() = (List.FromList l).GetHashCode()
 
         override this.ToString() = (List.FromList this).ToString()
 
-    type Tree<'A, 'B> =
+    [<CustomEquality; NoComparison>]
+    type Tree<'A, 'B  when 'A : equality and 'B : equality> =
         | Leaf of 'A
         | Node of 'B * Tree<'A, 'B> * Tree<'A, 'B>
-    with
+    with    
         static member FromTree (a: Tree<'A, 'B>) =
             match a with
             | Leaf a -> E (CON ("Leaf", RIGHT a))
             | Node (b, ltr, rtr) -> E (CON ("Node", LEFT (b, ltr, rtr)))
 
-        static member op_Equality (l, r) = Tree.FromTree l = Tree.FromTree r
+        override l.Equals r = 
+            match r with
+            | :? Tree<'A, 'B> as r -> Tree.FromTree l = Tree.FromTree r
+            | _ -> false
 
+        override t.GetHashCode() = (Tree.FromTree t).GetHashCode()        
+            
         override this.ToString() = (Tree.FromTree this).ToString()
 
 module Program =
