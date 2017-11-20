@@ -1,9 +1,13 @@
+open System.Security.AccessControl
+open System.Web.UI
 module Generics =
 
     type UNIT =
         | UNIT
     with
-        static member op_Equality (_: UNIT, _: UNIT) = true    
+        static member op_Equality (_: UNIT, _: UNIT) = true  
+
+        override this.ToString() = "" 
 
     type PAIR<'A, 'B> = 
         | PAIR of 'A * 'B
@@ -11,6 +15,10 @@ module Generics =
         static member op_Equality (l, r) =
             match l, r with
             | PAIR (a, b), PAIR (c, d) -> a = c && b = d
+
+        override this.ToString() =
+            match this with
+            | PAIR (a, b) -> "(" + a.ToString() + " " + b.ToString() + ")" 
 
     type EITHER<'A, 'B> =
         | RIGHT of 'A
@@ -22,12 +30,22 @@ module Generics =
             | LEFT a, LEFT b -> a = b
             | _, _ -> false
 
+        override this.ToString() =        
+            match this with
+            | RIGHT a -> a.ToString()
+            | LEFT a -> a.ToString()
+       
+
     type CON<'A> =
         | CON of string * 'A
     with
         static member op_Equality (l, r) =
             match l, r with
             | CON (a, b), CON (c, d) -> a = c && b = d
+
+        override this.ToString() =
+            match this with
+            | CON (s, a) -> "(" + s + " " + a.ToString() + ")"        
 
     type Generic<'A, 'B> =
         | U of CON<UNIT>
@@ -39,45 +57,45 @@ module Generics =
             | U _, U _ -> true
             | P a, P b -> a = b
             | E a, E b -> a = b
-            | _, _ -> false    
+            | _, _ -> false
+
+        override this.ToString() =
+            match this with
+            | U u -> u.ToString()
+            | P a -> a.ToString()
+            | E a -> a.ToString()        
 
 module Model =
-
+    open Generics
+    
     type List<'A> =
         | Nil
         | Cons of 'A * List<'A>    
+    with
+        static member FromList (a: List<'A>) =
+            match a with
+            | Nil -> U (CON ("Nil", UNIT))
+            | Cons (x, xs) -> P (CON ("Cons", PAIR (x, xs)))
+        
+        static member op_Equality (l, r) = List.FromList l = List.FromList r
+
+        override this.ToString() = (List.FromList this).ToString()
 
     type Tree<'A, 'B> =
         | Leaf of 'A
         | Node of 'B * Tree<'A, 'B> * Tree<'A, 'B>
+    with
+        static member FromTree (a: Tree<'A, 'B>) =
+            match a with
+            | Leaf a -> E (CON ("Leaf", RIGHT a))
+            | Node (b, ltr, rtr) -> E (CON ("Node", LEFT (b, ltr, rtr)))
 
-module FromModel =
-    open Model
-    open Generics
+        static member op_Equality (l, r) = Tree.FromTree l = Tree.FromTree r
 
-    let fromList (a: List<'A>) =
-        match a with
-        | Nil -> U (CON ("Nil", UNIT))
-        | Cons (x, xs) -> P (CON ("Cons", PAIR (x, xs)))
-
-    let fromTree (a: Tree<'A, 'B>) =
-        match a with
-        | Leaf a -> E (CON ("Leaf", RIGHT a))
-        | Node (b, ltr, rtr) -> E (CON ("Node", LEFT (b, ltr, rtr)))
-
-module ModelEquality =
-    open Model
-    open FromModel
-
-    type List<'A> with
-        static member Eq l r = fromList l = fromList r
-
-    type Tree<'A, 'B> with
-        static member Eq l r = fromTree l = fromTree r    
+        override this.ToString() = (Tree.FromTree this).ToString()
 
 module Program =
     open Model
-    open ModelEquality
 
     let l1 = Cons (1, Cons (2, Cons (3, Nil)))
     let l2 = Nil
@@ -90,23 +108,29 @@ module Program =
     let t4 = Node ('b', Node ('a', Leaf 1, Leaf 3), Leaf 2)
     let t5 = Node ('b', Node ('a', Leaf 1, Leaf 3), Leaf 2)
 
+    let Lists = [l1; l2; l3; l4]
+    let Trees = [t1; t2; t3; t4; t5]
+
     let TestList =
         [
-            List.Eq l1 l1
-            not (List.Eq l1 l2)
-            not (List.Eq l2 l1)
-            List.Eq l3 l4
-            List.Eq l4 l3
-            Tree.Eq t1 t1
-            not (Tree.Eq t1 t2)
-            not (Tree.Eq t2 t1)
-            not (Tree.Eq t2 t3)
-            not (Tree.Eq t3 t2)
-            Tree.Eq t4 t5
-            Tree.Eq t5 t4
+            l1 = l1
+            not (l1 = l2)
+            not (l2 = l1)
+            l3 = l4
+            l4 = l3
+            t1 = t1
+            not (t1 = t2)
+            not (t2 = t1)
+            not (t2 = t3)
+            not (t3 = t2)
+            t4 = t5
+            t5 = t4
         ]
+
+    let prettyPrint l = l |> List.fold (fun s v -> s + v.ToString() + "\n" ) "" 
 
     [<EntryPoint>]
     let main argv =
         printfn "%A" TestList
+        printfn "\n%s\n%s" (prettyPrint Lists) (prettyPrint Trees)
         0
