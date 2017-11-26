@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace bead1.Model
 {
-    class GameEventArgs : EventArgs
+    public class GameEventArgs : EventArgs
     {
         private Int32 gameTime;
         private Int32 fuel;

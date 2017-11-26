@@ -18,6 +18,8 @@ namespace bead1.Persistance
                     String line = await reader.ReadLineAsync();
                     String[] parts = line.Split(' ');
                     Int32 size = Int32.Parse(parts[0]);
+                    Int32 fuel = Int32.Parse(parts[1]);
+                    Int32 time = Int32.Parse(parts[2]);
                     GameTable table = new GameTable();
                     for(Int32 i = 0; i < size; ++i)
                     {
@@ -33,7 +35,7 @@ namespace bead1.Persistance
                             }
                         }
                     }
-
+                    table.SetToSave(fuel, time);
                     return table;
                 }
             }
@@ -50,7 +52,7 @@ namespace bead1.Persistance
                 using (StreamWriter writer = new StreamWriter(path))
                 {
                     writer.Write(table.Size);
-                    await writer.WriteLineAsync();
+                    await writer.WriteLineAsync(" " + table.Fuel + " " + table.Time);
                     for(Int32 i = 0; i < table.Size; ++i)
                     {
                         for(Int32 j = 0; j < table.Size; ++j)

@@ -9,12 +9,13 @@ namespace bead1.Model
 {
     public enum Direction { LEFT, RIGHT }
 
-    class GameModel
+    public class GameModel
     {
         private GameTable gameTable;
         private Int32 gameTime;
         private Int32 fuel;
         private Int32 playerPos;
+        private GameDataAccess dataAccess;
 
         public GameTable GameTable { get { return gameTable; } }
         public Int32 GameTime { get { return gameTime; } }
@@ -26,9 +27,10 @@ namespace bead1.Model
 
         public GameModel()
         {
+            dataAccess = new GameDataAccess();
             gameTable = new GameTable();
             gameTime = 0;
-            fuel = 10;
+            fuel = 20;
             playerPos = gameTable.Size / 2;
         }
 
@@ -36,7 +38,7 @@ namespace bead1.Model
         {
             gameTable = new GameTable();
             gameTime = 0;
-            fuel = 10;
+            fuel = 20;
             playerPos = gameTable.Size / 2;
         }
 
@@ -58,8 +60,8 @@ namespace bead1.Model
                 return;
             }
             Random rng = new Random();
-            Int32 place = rng.Next(0, gameTable.Size - 1);
-            gameTable.SetValue(0, place, Field.FUEL);
+            Int32 place = rng.Next(0, gameTable.Size - 2);
+            gameTable.SetValue(place, 0, Field.FUEL);
             OnGameAdvance();
         }
 
@@ -71,21 +73,26 @@ namespace bead1.Model
             }
             for(Int32 i = 0; i < gameTable.Size; ++i)
             {
-                for (Int32 j = gameTable.Size - 0; j >= 0; --j)
+                for (Int32 j = gameTable.Size - 1; j >= 0 ; --j)
                 {
                     if(gameTable.GetValue(i, j) == Field.FUEL)
                     {
-                        if (gameTable.GetValue(i + 1, j) == Field.PLAYER)
+                        if (gameTable.GetValue(i, j + 1) == Field.PLAYER)
                         {
-                            fuel++;
+                            fuel += 11;
                         }
-                        else if (i < gameTable.Size - 2)
+                        else if (j < gameTable.Size - 2)
                         {
-                            gameTable.SetValue(i + 1, j, Field.FUEL);
+                            gameTable.SetValue(i, j + 1, Field.FUEL);
                         }
                         gameTable.SetValue(i, j, Field.ROAD);
                     }
                 }
+            }
+            --fuel;
+            if(fuel == 0)
+            {
+                OnGameOver();
             }
             OnGameAdvance();
         }
@@ -98,19 +105,20 @@ namespace bead1.Model
                     if(playerPos > 0)
                     {
                         playerPos--;
-                        gameTable.SetValue(gameTable.Size - 1, playerPos, Field.PLAYER);
-                        gameTable.SetValue(gameTable.Size - 1, playerPos + 1, Field.ROAD);
+                        gameTable.SetValue(playerPos, gameTable.Size - 2, Field.PLAYER);
+                        gameTable.SetValue(playerPos + 1, gameTable.Size - 2, Field.ROAD);
                     }
                     break;
                 case Direction.RIGHT:
-                    if (playerPos < gameTable.Size)
+                    if (playerPos < gameTable.Size - 1)
                     {
                         playerPos++;
-                        gameTable.SetValue(gameTable.Size - 1, playerPos, Field.PLAYER);
-                        gameTable.SetValue(gameTable.Size - 1, playerPos - 1, Field.ROAD);
+                        gameTable.SetValue(playerPos, gameTable.Size - 2, Field.PLAYER);
+                        gameTable.SetValue(playerPos - 1, gameTable.Size - 2, Field.ROAD);
                     }
                     break;
             }
+            OnGameAdvance();
         }
 
         private void OnGameAdvance()
@@ -121,5 +129,34 @@ namespace bead1.Model
             }
         }
 
+        private void OnGameOver()
+        {
+            if (GameOver != null)
+            {
+                GameOver(this, new GameEventArgs(gameTime, fuel, IsOver));
+            }
+        }
+
+        public async Task SaveGameAsync(String path)
+        {
+            if(dataAccess == null)
+            {
+                throw new Exception();
+            }
+            gameTable.SetToSave(fuel, gameTime);
+            await dataAccess.SaveAsync(path, gameTable);
+        }
+
+        public async Task LoadGameAsync(String path)
+        {
+            if (dataAccess == null)
+            {
+                throw new Exception();
+            }
+
+            gameTable = await dataAccess.LoadAsync(path);
+            gameTime = gameTable.Time;
+            fuel = gameTable.Fuel;
+        }
     }
 }
