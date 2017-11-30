@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-#include <vector>
 
 #include "pvm3.h"
 
@@ -14,22 +13,25 @@ int main(int argc, char** argv) {
     int* set = readFile(argv[2], setsize);
     int result = 1;
     
-    int tid;
-    if(pvm_spawn(const_cast<char*>("child"), (char**)0, 0, const_cast<char*>(""), 1, &tid) < 1) return -1;
-    
-    pvm_initsend(PvmDataDefault);
-    pvm_pkint(&setsize, 1, 1);
-    pvm_pkint(set, setsize, 1);
-    pvm_pkint(&sum, 1, 1);
-    pvm_pkint(&result, 1, 1);
-    pvm_send(tid, 0);
+    if(setsize == 0 || sum == 0) {
+        writeFile(argv[3], sum != 0);
+    } else {
+        int tid;
+        if(pvm_spawn(const_cast<char*>("child"), (char**)0, 0, nullptr, 1, &tid) < 1) return -1;
+        
+        pvm_initsend(PvmDataDefault);
+        pvm_pkint(&setsize, 1, 1);
+        pvm_pkint(set, setsize, 1);
+        pvm_pkint(&sum, 1, 1);
+        pvm_pkint(&result, 1, 1);
+        pvm_send(tid, 0);
 
-    pvm_recv(tid, -1);
+        pvm_recv(tid, -1);
 
-    pvm_upkint(&result, 1, 1);
+        pvm_upkint(&result, 1, 1);
 
-    writeFile(argv[3], result);
-
+        writeFile(argv[3], result);
+    }
     pvm_exit();
     return 0;
 }
