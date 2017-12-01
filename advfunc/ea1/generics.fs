@@ -103,6 +103,41 @@ module Generics =
             | P p -> p.GetHashCode()
             | E e -> e.GetHashCode()      
 
+module GenericsV2 =
+
+    [<CustomEquality; NoComparison>]
+    type UNIT = | UNIT
+    with
+        override l.Equals r =
+            match r with
+            | :? UNIT -> true
+            | _ -> false
+
+    [<CustomEquality; NoComparison>]
+    type PAIR<'A, 'B when 'A : equality and 'B : equality> =
+        | PAIR of 'A * 'B
+    with
+        override l.Equals r =
+            match r with
+            | :? PAIR<'A, 'B> as p ->
+                match l, p with
+                | PAIR (a, b), PAIR(c, d) -> a = c && b = d
+                | _ -> false
+            | _ -> false            
+            
+    type EITHER<'A, 'B when 'A : equality and 'B : equality> =
+        | LEFT of 'A
+        | RIGHT of 'B
+    with
+        override l.Equals r =
+            match r with
+            | :? EITHER<'A, 'B> as p ->
+                match l, p with
+                | RIGHT a, RIGHT b -> a = b
+                | LEFT a, LEFT b -> a = b
+                | _, _ -> false
+            | _ -> false     
+
 module Model =
     open Generics
     
