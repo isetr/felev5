@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
     int* set;
     
     pvm_recv(ptid, 0);
-    pvm_upkint(&setsize, 1, 1);
 
+    pvm_upkint(&setsize, 1, 1);
     pvm_upkint(set, setsize, 1);
     pvm_upkint(&sum, 1, 1);
 
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 
     if (sum == 0 || sum1 == 0) {
         result = 1;
-    } else if(setsize == 0 || ss == 0) {
+    } else if(setsize <= 0 || ss <= 0) {
         result = 0;
     } else {
         int r1, r2;    

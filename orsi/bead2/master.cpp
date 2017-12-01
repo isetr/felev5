@@ -1,16 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <vector>
 
 #include "pvm3.h"
 
-int* readFile(std::string path, int& count);
+std::vector<int> readFile(std::string path, int& count);
 void writeFile(std::string path, int result);
 
 int main(int argc, char** argv) {
     int sum = atoi(argv[1]);
     int setsize = 0;
-    int* set = readFile(argv[2], setsize);
+    std::vector<int> set = readFile(argv[2], setsize);
     int result = 0;
     
     if(setsize == 0 || sum == 0) {
@@ -21,7 +22,7 @@ int main(int argc, char** argv) {
         
         pvm_initsend(PvmDataDefault);
         pvm_pkint(&setsize, 1, 1);
-        pvm_pkint(set, setsize, 1);
+        pvm_pkint(&set[0], setsize, 1);
         pvm_pkint(&sum, 1, 1);
         pvm_send(tid, 0);
 
@@ -35,14 +36,14 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-int* readFile(std::string path, int& count) {
+std::vector<int> readFile(std::string path, int& count) {
     std::ifstream file(path);
     file >> count;
-    int* out = new int[count];
+    std::vector<int> out;
+    out.resize(count);
     for(int i = 0; i < count; ++i) {
         file >> out[i];
     }
-
     return out;
 }
 
