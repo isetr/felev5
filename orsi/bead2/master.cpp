@@ -9,9 +9,9 @@ void writeFile(std::string path, int result);
 
 int main(int argc, char** argv) {
     int sum = atoi(argv[1]);
-    int setsize;
+    int setsize = 0;
     int* set = readFile(argv[2], setsize);
-    int result;
+    int result = 0;
     
     if(setsize == 0 || sum == 0) {
         writeFile(argv[3], sum == 0);
@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
         pvm_pkint(&sum, 1, 1);
         pvm_send(tid, 0);
 
-        pvm_recv(tid, 1);
+        pvm_recv(tid, 0);
 
         pvm_upkint(&result, 1, 1);
 

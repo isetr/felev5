@@ -5,20 +5,21 @@
 
 int main(int argc, char** argv) {
     int ptid = pvm_parent();
-    int sum;
-    int setsize;
-    int result;
+    int sum = 0;
+    int setsize = 0;
+    int result = 0;
+    int* set;
     
     pvm_recv(ptid, 0);
     pvm_upkint(&setsize, 1, 1);
-    int* set = new int[setsize];
+
     pvm_upkint(set, setsize, 1);
     pvm_upkint(&sum, 1, 1);
 
     int ss = setsize - 1;
     int sum1 = sum - set[ss];
 
-    if (sum == 0 || sum1 == 1) {
+    if (sum == 0 || sum1 == 0) {
         result = 1;
     } else if(setsize == 0 || ss == 0) {
         result = 0;
