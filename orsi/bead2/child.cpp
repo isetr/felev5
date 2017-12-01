@@ -17,15 +17,15 @@ int main(int argc, char** argv) {
     pvm_upkint(&sum, 1, 1);
 
     int ss = setsize - 1;
-    int sum1 = sum - set[ss];
 
     if (sum == 0 || sum1 == 0) {
         result = 1;
-    } else if(setsize <= 0 || ss <= 0) {
+    } else if(setsize <= 0) {
         result = 0;
     } else {
         int r1, r2;    
         int tid1, tid2;
+        int sum1 = sum - set[ss];
 
         if(pvm_spawn(const_cast<char*>("child"), (char**)0, 0, nullptr, 1, &tid1) < 1) std::exit(-1);
         pvm_initsend(PvmDataDefault);

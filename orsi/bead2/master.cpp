@@ -22,7 +22,12 @@ int main(int argc, char** argv) {
         
         pvm_initsend(PvmDataDefault);
         pvm_pkint(&setsize, 1, 1);
-        pvm_pkint(&set[0], setsize, 1);
+
+        int send[setsizte];
+        for(int i = 0; i < setsize; ++i) {
+            send[i] = set.at(i);
+        }
+        pvm_pkint(send, setsize, 1);
         pvm_pkint(&sum, 1, 1);
         pvm_send(tid, 0);
 
