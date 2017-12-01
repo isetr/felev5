@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <vector>
+#include <chrono>
 
 #include "pvm3.h"
 
@@ -14,6 +15,7 @@ int main(int argc, char** argv) {
     std::vector<int> set = readFile(argv[2], setsize);
     int result = 0;
     
+    auto start = std::chrono::steady_clock::now();
     if(setsize == 0 || sum == 0) {
         writeFile(argv[3], sum == 0);
     } else {
@@ -37,6 +39,8 @@ int main(int argc, char** argv) {
 
         writeFile(argv[3], result);
     }
+    auto end = std::chrono::steady_clock::now();
+    std::cerr << "Time elapsed: " << std::chrono::duration<double>(end - start).count() << " sec" << std::endl;
     pvm_exit();
     return 0;
 }
