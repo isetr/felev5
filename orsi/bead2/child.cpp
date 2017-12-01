@@ -8,17 +8,19 @@ int main(int argc, char** argv) {
     int sum = 0;
     int setsize = 0;
     int result = 0;
-    int* set;
     
     pvm_recv(ptid, 0);
 
     pvm_upkint(&setsize, 1, 1);
-    pvm_upkint(set, setsize, 1);
+    int set[setsize];
+    for(int i = 0; i < setsize; ++i) {
+        pvm_upkint(&set[i], 1, 1);
+    }
     pvm_upkint(&sum, 1, 1);
 
     int ss = setsize - 1;
 
-    if (sum == 0 || sum1 == 0) {
+    if (sum == 0) {
         result = 1;
     } else if(setsize <= 0) {
         result = 0;
