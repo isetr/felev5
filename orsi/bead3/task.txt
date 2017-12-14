@@ -1,0 +1,203 @@
+Keretsztori
+A szünet közeledtével a hallgatók megunták a tanulást, így inkább a szórakozás felé fordultak. Tudták azonban, hogy a vizsgaidoszakban nem felejthetnek el mindent, amit eddig tanultak - hiszen arra szükségük lesz az elottük lévo számonkérések alkalmával. Arra jutottak tehát, hogy a kellemeset a hasznossal fogják kombinálni - a saját grafilogikai játékukat fogják implementálni, a közismert Picross rejtvények alapján. Hogy még izgalmasabb legyen, úgy gondolták, a legjobb, ha tetszoleges képbol tudnak rejtvényt eloállítani. Ahhoz azonban, hogy a játékba integrálni tudják a fejtöroket, szükségük volt egy alkalmazásra, amely egy meglévo képbol a rejtvényhez szükséges szerkezetet eloállítja. Bár sokszor csak fekete/fehér mátrixszal játszanak, úgy érezték, a színeket nem lehet elhanyagolni egy vizuális készségeket igénylo feladat megoldásához. Megálapodásuk alapján csak négyzetes alakú képekkel dolgoztak, mivel a különbözo méretu, felbontású és képarányú kijelzokhöz így tudtak optimális UI-t biztosítani. A könnyebbség kedvéért végül 3 bites színpalettát alkalmaztak, így minden képet 8 színre kellett redukálni. Fontos volt az is ezen felül, hogy ne a teljes felbontásában szerepeljen egy-egy kép, így tetszoleges méretre tudták kicsinyíteni a fotókat. Ahhoz, hogy a felhasználók számára a játék teljesítéséhez feltétlen szükséges információkat is megadhassák, a sorok és oszlopok mellett található címkéket is le kellett generálni. 
+
+Miután több ezer képbol akarták elkészíteni az app-ot, hogy ne unjon rá senki hamar, ezért arra jutottak, hogy ha a három algoritmust egyesével akarnák futtatni az eredeti képeken, a konvertálási ido túl hosszúvá válna. Szerencséjükre ELTEs diákként mindannyian megismerkedtek az Adatcsatorna tételével, így hamar rájöttek, hogy annak segítségével nagyságrendileg csak (N+3) lépést kell végrehajtani (N*3) helyett, amit ha kombinálnak a korábban szerzett egyéb ismereteikkel (TaskFarm, D&C), még tovább tudják csökkenteni a futási idot, ami már megfelelonek bizonyult.
+A megoldandó feladat tehát az alábbi:
+Egy elore megadott fájlban képek szöveges reprezentációját találhatjuk (pixelenként RGB módon).
+
+A program parancssori paraméterként kapja meg az alábbiakat:
+A képek átméretezési arányát %-ban. (pl. 50 - ekkor 50%-ra, azaz felére kell csökkenteni az összes képet. 25 esetén negyed-méretet kapnánk, etc.)
+Annak a fájlnak a neve, a képek primitív leírását tartalmazza. (pl. 'pictures.txt' )
+A kimeneti fájl neve (pl. 'picross.quiz')
+A fájlból (elso param.) beolvasott képeket eloször a megadott arányban át kell méretezni.
+
+Ezek után az így kapott kisebb képek színeit kell leképezni az elore megadott 8 szín valamelyikére.
+
+Ezt követoen az így kapott ábrákban minden sorra és oszlopra ki kell számolni, hogy egymás után hány azonos színu pixelt láthatunk (de nem szimplán azt, hogy az adott sorban/oszlopban hány különbözo szín található).
+
+A kapott eredményeket (a méretezett és megfelelo színre konvertált képeket és a hozzájuk tartozó címkéket) írjuk ki a kimeneti fájlba (3-ik paraméter)!
+
+Az egyes feladatok részletezése lejjebb olvasható.
+Bemeneti fájl felépítése
+A paraméterben megadott fájl felépítése a következo:
+
+N
+P_1
+P_2
+...
+P_N
+Az elso sorban található N szám alapján összesen N képre kell a késobb leírt számításokat alkalmazni, ezt N kép adatai követik az alábbi módon (a P_i kép leírása):
+
+Eloször a kép szélességét (és egyben magasságát) olvashatjuk "pixelben" (s_i).
+
+Az ezt követo (s_i) sorban összesen 3 x s_i x s_i pixel színkódja olvasható RGB formátumban, whitespacekkel tagolva (egy pixelt 3 szín alapján határozunk meg, így egy sorban összesen 3*s_i adat olvasható.
+
+Mivel a képünk négyzetes, azaz s_i x s_i méretu, összesen 3 x s_i x s_i adatot találunk).
+
+Lehetséges részlet ekkor az i-ik képnél:
+
+4
+96 252 199 129 242 211 93 238 196 5 152 143
+242 185 199 205 28 185 134 134 62 66 37 24
+238 181 253 190 123 12 5 73 230 226 185 204
+122 25 11 162 235 33 33 254 159 118 232 109
+Ez alapján a kép bal felso pixele a (96, 252, 199), a tole jobbra lévo pixel a (129,242,211) színt veszi fel.
+
+A következo sorban az elso pixel színe (242,185,199), ezt követi a (205,28,185) stb., stb.
+
+Egy valid 'pictures.txt' fájl felépítése ekkor az alábbi lehet:
+
+2
+4
+96 252 199 129 242 211 93 238 196 5 152 143
+242 185 199 205 28 185 134 134 62 66 37 24
+238 181 253 190 123 12 5 73 230 226 185 204
+122 25 11 162 235 33 33 254 159 118 232 109
+2
+91 64 228 191 3 105
+241 77 140 185 50 163
+(A fájlban tehát két "kép" található. Az elso 4x4-es, a második 2x2es.)
+
+A program egy lehetséges paraméterezése és futtatása tehát a következo:
+
+> spawn -> master 50 pictures.txt picross.quiz
+Az egyes részfeladatokat az alábbi módon értelmezhetjük:
+Átméretezés
+Bemeno adatként egy képet, és egy tömörítési arányt kapunk (hogy ez egy százalék, vagy az összevonandó pixelek száma soronként/oszloponként, az tetszoleges).
+
+Az itt kiszámolt adat egy új kép, melynek mérete az eredeti méretének x%-a.
+
+Az átméretezéshez egy nagyon egyszeru algoritmust fogunk használni, mely szimplán átlagolja az eredeti kép pixeleinek színét, és ebbol állítja elo az új képpontnak megfelelo értéket.
+
+Az új kép pixeleinek színét az eredeti adatból tudjuk kiszámolni a kóvetkezo módon:
+
+Ha 'p' pixelt kell összevonni, akkor az új képünk [ i ][ j ]-ik pixelének színéhez az eredeti kép [ i*p + k ][ j*p + l ] (k, l € [0..p) pixeleinek színét kell átlagolni.)
+
+(Tehát ha 50%-ra méretezünk, akkor a kép 1/2 része lesz az eredetinek, azaz 2x2 pixelt vonunk össze. 25%-nál 1/4 részre 4x4 pixelt, 10% esetén 1/10-re 10x10 pixelt, etc. etc.)
+
+A képet itt 1-tol indexeljük (absztrakt algoritmus) - C++ban a vektort/tömböt azonban 0-tól, így a két külso ciklus más intervallumot jár be - [0..newwidth).
+
+newwidth := orignalwidth / p
+newheight := originalheight / p
+result is image(newwidth, newheight)
+
+for i in [1..newwidth] do
+    for j in [1..newheight] do
+    	result[i,j] := average(original[i*p + k, j*p + l] ) (k,l € [0..p) )
+    endloop
+endloop
+A számolás során az egyes szín-komponenseket mindig mod 256 kell érteni, az egyedi ábrázolási módoknál figyeljetek a túlcsordulások elkerülésére. Alapesetben [0..255] közé esik minden szín, amit ha 3 változó reprezentál, akkor az átlaguk sem lehet ennél nagyobb/kisebb, ebben az esetben ezzel nem kell külön foglalkozni. Ha egyetlen int-be csomagolva tároljátok azonban az adatokat (konzis "bitshift-magic módszer"), akkor azonban nem lehet simán összeadni a színeket - a két kék komponens összege túlcsordulhat a zöldbe, ami pedig a pirosba, eltorzítva az eredményt - ilyen esetben különös odafigyeléssel kell dolgozni.
+
+Az adatcsatornában az így kapott képet kell továbbküldeni.
+
+Színkódolás
+A csatornából érkezo adatunk egy MxM-es kép (az M értéke képenként változik!). A feladatban megadott 8 alapszínt a 3 bites RGB-paletta alapján a következoknek tekintjük:
+
+BLACK  (0,0,0)
+RED    (255,0,0)
+GREEN  (0,255,0)
+BLUE   (0,0,255)
+CYAN   (0,255,255)
+MAGENTA(255,0,255)
+YELLOW (255,255,0)
+WHITE  (255,255,255)
+Egy szín leképezését a fent megadott 8 szín valamelyikére vetítsünk komponensenként - amennyiben egy szín a [0..127] intervallumba esik, akkor az adott komponens 0 értéket vesz fel, ha a [128..255]-be, akkor az eredmény 255.
+
+Az MxM-es kép mindegyik pixelét ily módon kell kódolni, hogy ezt az új képet küldhessük tovább a csatornában.
+
+Címkézés
+A bemeneti adat elsosorban egy MxM-es kép, ebbol kell címkéket készíteni (az M érték itt is változó) minden sorra és minden oszlopra. Az alábbi "kép" esetén pl:
+
+BLACK RED GREEN BLUE
+BLACK RED RED RED
+BLACK RED RED YELLOW
+MAGENTA RED YELLOW YELLOW
+A sorokhoz tartozó címkék az alábbiak:
+
+1 1 1 1
+1 3
+1 2 1
+1 1 2
+Ennek a jelentése az alábbi: Az elso sorban négy, különbözo színu pixel található. (B R G B) A második sorban egy különbözo, majd 3 azonos színu pixel olvasható. (B R R R) A harmadik sorban egy egyedi, aztán két egy forma, végül az elotte lévotol megint eltéro színu pixelt láthatunk. (B R R Y) Az utolsó sorban két különbözo, majd egymással (de az elottük lévo pixellel nem) azonos színu 2 pixel látható. (M R Y Y)
+
+Az oszlopokhoz ugyanitt a következot rendelhetjük:
+
+3 1
+4
+1 2 1
+1 1 2
+Az oszlopok címkéit analóg módon értelmezzük.
+
+A csatorában tovább az itt kapott képet, majd a sorok és oszlopok címkéit küldjük tovább.
+Szülofolyamat
+A szülofolyamat (master) dolga az eredeti képek beolvasása, az adatcsatorna belso függvényeinek megfelelo gyerekfolyamatok (first, second, third) elindítása, a csatorna összeállítása megfelelo módon, illetve minden gyereknek azok muködéséhez feltétlen szükséges adatok továbbítása. A képeket (és a plusz adatot, amit annak számítása igényel - átméretezési arány) az adatcsatornában elsoként szereplo gyereknek kell elküldeni! A master csak a csatorna végén lévo gyerektol fogadjon adatot! A harmadik gyerektol fogadott adatokat a szülofolyamat írja ki a paraméterül kapott fájlba az alábbi módon: (i € [1..N], azaz ahány kép van)
+
+P_i1
+P_i2
+..
+P_in
+L_iR
+L_iC
+Értelmezés: Az i-ik kép elso sorának pixelelei '(R,G,B)' módon formázva (azaz zárójelezve, vesszokkel elválasztva) szóközzel tagolva. (sor végén IS szóköz.) Az i-ik kép második sorának pixelelei '(R,G,B)' módon formázva hasonló módon, mind az n sorra. Az i-ik kép SOR-aihoz tartozó címkék, a fenti alakban (címkézés fejezet). Az i-ik kép OSZLOP-aihoz tartozó címkék, ahogy elobb is.
+
+Az alábbi paraméterezés melletti futtatással a következo kimeneti fájlt kaphatjuk (a program egy lehetséges paraméterezése és futtatása tehát a következo):
+
+> spawn -> master 50 pictures.txt picross.quiz
+> cat picross.quiz
+(255,255,255) (0,255,0) 
+(255,255,0) (0,255,255) 
+1 1 
+1 1 
+1 1 
+1 1 
+(255,0,255) 
+1 
+1 
+A futás során feltehetjük az alábbiakat:
+A bemeneti fájl létezik.
+A bemeneti fájl felépítése megfelel a feladat specifikációjában leírtaknak.
+Az egyes színek rendre a [0..255] intervallumból veszik fel egész értékeiket.
+Az egyes képekhez tartozó adatok valódi adatokat tartalmaznak, nincs kevesebb/több/más típusú adat, melyre a programot külön fel kell készíteni.
+A képek mérete (2Mx2M, M>=2)
+Az átméretezés során nem lesznek lógó sorok/oszlopok, azaz pl. ha felezni kell egy képet, akkor 50% esetén 100/50 = 2 -> 2x2 pixelt kell összevonni egy újjá (tehát nem foglalkozunk a 42,69%-os méretezéssel, hogy milyen módon kell számolni, az arány alapján a számolásban egyértelmuen lehet indexelni a megfelelo sort/oszlopot az eredeti kép pixeleihez).
+Nem méretezünk 0%-ra vagy annál kisebbre, illetve 100% fölé (identikus leképezés - 100% - azonban elofordulhat), azaz az elso paraméter az [1..100] intervallumba eso egész szám.
+A feladat megoldási módja
+A feladatot az adatcsatorna tételére visszavezetve kell megoldani C++11 és PVM3 hibrid modelljével! 
+Az adatcsatorna maga PVM3 használatával épüljön fel, az egyes gyerekfolyamatokon belüli feladatokat pedig az év elején megismert C++11es std::thread/std::future<T> osztályok használatával kell kivitelezni!
+Az elso lépést - átméretezés - a második beadandóban megismert Divide & Conquer minta alapján kell megvalósítani!
+A rekurzív függvény a következo elven muködik: egy megadott képet több (kisebb) részre osztunk (vízszintesen és függolegesen is pl. Y részre osztva), ezeket tömörítjük majd az így eloállt YxY képet kombinálva kapjuk meg az eredeti kép tömörítését.
+Annak eldöntése, hogy hol áll le a rekurzió, és történik egy adott kép konkrét tömörítése, a hallgatóra van bízva, de az indoklást szeretnénk látni a dokumentációban! (pl. mérések alapján 3 lépésig érdemes rekurzívan hívni, onnantól pedig elvégezni a tömörítési algoritmust, és rekombinálni az eredményt.)
+A második és harmadik lépés - színkonvertálás és címkézés - az elso beadandó mintájára, TaskFarm segítségével történjen!
+A képet reprezentáló mátrix alapján induljon több folyamat (C++11es, ne PVM), melyek egy-egy sorra/oszlopra számítják ki a szükséges adatokat! (Tehát pl. minden sorra párhuzamosan számoljuk ki az adott színekbol számított új színt a 2-es lépésben, illetve a 3-ik lépésben is számolhatjuk az oszlopokra.) A fo szál se unatkozzon ami alatt a többi számol, tehát nem kell az összes sort/oszlopot új folyamatként indítani, néhányat az eredeti folyamatban számoljunk, hogy ne legyen üresjárat!
+A dokumentációban szerepeljen a visszavezetés mikéntje, a megfeleltetés az absztrakt programhoz!
+Általános elvárások:
+Fokozottan kérünk mindenkit, hogy a beadandó határidejét (december 22, 18:00) vegye figyelembe! Kérjük osszátok be az idotöket, hogy ne csússzatok le a határidorol semmi esetben sem! Ez után nem áll módunkban elfogadni megoldásokat, kifogástól és indoklástól függetlenül! (Szült a halam, nem tudtam beadni, de elküldöm emailben; pont feltöltöttem volna, de lezárt a BEAD, jó lesz facebookon?; Késett a vonat de majd behozom pendriveon úgy jó? Nem, nem lesz jó egyik esetben sem.)
+
+Kérünk mindenkit, hogy olvassa el a BEAD-on a hozzászólásokat, amiket írunk neki, mielott újra és újra feltölti a megoldást, így elkerülheto, hogy feleslegesen terheljétek a szervert, és egy körben lehet a legtöbb hibát javítani. Elutasított beadandóknál ez különösen igaz, általában a dokumentáció hiánya miatt (.pdf és .tex fájl egyaránt szükséges) szokott történni!
+
+A megoldásaitokat egyetlen ZIP fájlba tömörítve töltsétek fel! Kérünk benneteket, hogy csak a szükséges forrásfájl(oka)t rakjátok bele az állomány gyökerébe, teljes projektet, solutiont (.cbp, .sln, illetve az ezekhez tartozó többi fájl), object fájlokat, vagy közvetlenül futtatható állományt (a.exe, a.out, etc..) semmiképp sem!
+
+A dokumentációt szintén mellékeljétek a megoldáshoz! Szeretnénk a .tex és a .pdf fájlt egyaránt látni a feltöltött állományban a forráskód mellett!
+
+A mintadokumentációt megtaláljátok itt, kérjük ez alapján dolgozzatok! http://people.inf.elte.hu/mykeesg/orsi17_18_1/mintadoksi.zip
+
+Szeretnénk mindenkit megkérni, hogy az alábbiak vegye figyelembe a feltöltés során:
+A négy (*.cpp) fájlt, illetve a dokumentációhoz tartozó fájlokat (pdf, tex) egyaránt csomagoljátok be. A szülofolyamat kódja 'master.cpp', az elso gyereké 'first.cpp', a másodiké 'second.cpp', míg a harmadik gyerekfolyamat forráskódját a 'third.cpp' fájlba helyezzétek el! Ha esetleg használtok valamilyen (magatoknak írt) header filet, azt is a zip gyökerébe tegyétek bele, hogy a fordítás során biztosan megtalálja a rendszer.
+A teszteléskor a fordítás során a BEAD rendre "master", "first", "second"és"third" néven fogja elnevezni a futtatható állományokat, így a pvm_spawn(executable_name, ...); hívásban is ezeket a neveket használjátok! (Lentebb találtok egy Makefile.aimk fájlt az atlaszos teszteléshez. Az elso fordítás elott egy aimk clean parancsot, majd utána aimk links-et adjatok ki, mivel itt változtak az elozohöz képest a futtatható állományok.)
+A fájlokat a ZIP gyökerébe helyezzétek el, tehát ne mappát tömörítsetek, csupán a fájlokat!
+Tesztelési segédlet: Teszteléshez mintafájlokat http://people.inf.elte.hu/mykeesg/orsi17_18_1/3bead_minta.zip innen tudtok letölteni.
+
+Makefilet http://people.inf.elte.hu/mykeesg/orsi17_18_1/Makefile.zip itt tölthettek le.
+
+A feladatban említett excel fájl az elso két lépés szemléltetésére http://people.inf.elte.hu/mykeesg/orsi17_18_1/picross_help.xlsx ezen a linken található.
+
+Egyéb segítség: http://people.inf.elte.hu/pixxon/orsi/
+
+A leggyakrabban ismételt kérdésekre http://people.inf.elte.hu/mykeesg/orsi17_18_1/orsi_faq.pdf itt találhattok választ.
+
+Leírás a PVM3 használatáról: http://people.inf.elte.hu/toth_m/orsi/pvm/
+
+Az értékelési szempontrendszer http://people.inf.elte.hu/mykeesg/orsi17_18_1/kovetelmeny.pdf ez alapján történik, kérjük figyelmesen olvassátok el.
+
+Ha egyéb kérdésetek van, akkor az orsi4ever@gmail.com címen tudtok kérdezni.
+
