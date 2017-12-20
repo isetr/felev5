@@ -1,0 +1,39 @@
+BINS	= master first second third
+
+################################################################################
+
+OPTIONS	= -W -Wall -std=c++11 -lpthread
+
+BDIR	= $(HOME)/pvm3/bin
+XDIR	= $(BDIR)/$(PVM_ARCH)
+
+CFLAGS	= $(OPTIONS) -I$(PVM_ROOT)/include $(ARCHCFLAGS)
+LIBS	= -lpvm3 $(ARCHLIB)
+LDFLAGS	= -L$(PVM_ROOT)/lib/$(PVM_ARCH)
+
+default: $(BINS)
+
+% : ../%.c
+	$(CC) $(CFLAGS)  -o $@ $< $(LDFLAGS) $(LIBS)
+% : ../%.cc
+	$(CXX) $(CFLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
+% : ../%.cpp
+	$(CXX) $(CFLAGS) -o $@ $< $(LDFLAGS) $(LIBS)
+
+$(XDIR):
+	mkdir -p $(XDIR)
+
+links: $(XDIR)
+	@(CURRENT=`pwd` ;\
+	echo cd $(XDIR) ;\
+	cd $(XDIR) ;\
+	for i in $(BINS) ;\
+	do \
+		echo ln -sf $$CURRENT/$$i $$i ;\
+		ln -sf $$CURRENT/$$i $$i ;\
+	done ;)
+	       
+clean:
+	rm -f *.o 
+	rm -f $(BINS)
+	(cd $(XDIR); rm -f $(BINS))
