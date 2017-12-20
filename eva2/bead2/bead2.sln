@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bead1", "bead1\bead1.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bead1Test", "bead1Test\bead1Test.csproj", "{6F116480-4385-4618-87F6-E79E68E6BA8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bead2", "bead2\bead2.csproj", "{862A78B9-5CBB-405E-868C-972F602BAFEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6F116480-4385-4618-87F6-E79E68E6BA8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F116480-4385-4618-87F6-E79E68E6BA8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F116480-4385-4618-87F6-E79E68E6BA8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{862A78B9-5CBB-405E-868C-972F602BAFEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{862A78B9-5CBB-405E-868C-972F602BAFEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{862A78B9-5CBB-405E-868C-972F602BAFEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{862A78B9-5CBB-405E-868C-972F602BAFEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

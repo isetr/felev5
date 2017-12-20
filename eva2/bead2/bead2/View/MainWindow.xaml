@@ -1,0 +1,81 @@
+﻿<Window x:Class="bead2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:bead2"
+        mc:Ignorable="d"
+        Title="Bead2" Height="500" Width="542" MinHeight="500" MinWidth="542" MaxHeight="500" MaxWidth="542">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding StepLeft}" Key="Left"/>
+        <KeyBinding Command="{Binding StepRight}" Key="Right"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="Fájl">
+                <MenuItem Header="Új Játék" Command="{Binding NewGameCommand}" />
+                <Separator/>
+                <MenuItem Header="Szünet" Command="{Binding PauseGameCommand}"/>
+                <Separator/>
+                <MenuItem Header="Kilépés" Command="{Binding ExitGameCommand}"/>
+            </MenuItem>
+        </Menu>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Fields}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="10" Columns="10"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle>
+                        <Rectangle.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1"/>
+                        </Rectangle.RenderTransform>
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Type}" Value="0">
+                                        <Setter Property="Fill" Value="Black"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Type}" Value="1">
+                                        <Setter Property="Fill" Value="White"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Type}" Value="2">
+                                        <Setter Property="Fill" Value="Green"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
+                    </Rectangle>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemContainerStyle>
+                <Style>
+                    <Setter Property="Grid.Row" Value="{Binding X}"/>
+                    <Setter Property="Grid.Column" Value="{Binding Y}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock Text="Idő: "/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding GameTime}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="Üzemanyag: "/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding Fuel}"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
