@@ -4,50 +4,69 @@
 #include "model.hpp"
 #include "pvm3.h"
 
-Color matchColor(const Color& color);
+std::vector<Color> matchColor(int row, Image img);
 
 int main(int argc, char** argv) {
     int ptid = pvm_parent();
     int tid[3];
     int imagesCount;
 
+    debug << "second: waiting for ptid\n";
+    debug.flush();
     pvm_recv(ptid, 0);
     pvm_upkint(tid, 3, 1);
     pvm_upkint(&imagesCount, 1, 1);
+    debug << "second: got ptid\n";
+    debug.flush();
 
     for(int i = 0; i < imagesCount; ++i) {
+        debug << "second: waiting for image\n";
+        debug.flush();
         pvm_recv(tid[0], 0);
+        debug << "second: got image\n";
+        debug.flush();
         PackedImage packed;
         pvm_upkint(&packed.size, 1, 1);
-        pvm_upkint(packed.data, packed.size * packed.size * 3, 1);
-        pvm_upkint(packed.rows, packed.size * packed.size, 1);
-        pvm_upkint(packed.cols, packed.size * packed.size, 1);
+        for(int i = 0; i < packed.size; ++i) {
+            pvm_upkint(packed.data[i], packed.size * 3, 1);
+        }
+        for(int i = 0; i < packed.size; ++i) {
+            pvm_upkint(packed.rows[i], packed.size, 1);
+        }
+        for(int i = 0; i < packed.size; ++i) {
+            pvm_upkint(packed.cols[i], packed.size, 1);
+        }
 
         Image img(packed);
         int size = img.getSize();
 
-        std::vector<std::vector<std::future<Color>>> newColorsCalc(size);
+        std::vector<std::future<std::vector<Color>>> newColorsCalc;
+        newColorsCalc.resize(size);
         for(int i = 0; i < size; ++i) {
-            newColorsCalc.at(i).resize(size);
-            for(int j = 0; j < size; ++j) {
-                newColorsCalc.at(i).at(j) = std::async(std::launch::async, matchColor, img(i, j);
-            }
+            newColorsCalc.at(i) = std::async(std::launch::async, matchColor, i, img);
         }
 
         Image result(size);
         for(int i = 0; i < size; ++i) {
+            std::vector<Color> tmp = newColorsCalc.at(i).get();
             for(int j = 0; j < size; ++j) {
-                result(i, j) = newColorsCalc.at(i).at(j).get();
+                result(i, j) = tmp.at(j);
             }
         }
 
         pvm_initsend(PvmDataDefault);
 
         PackedImage packedResult = result.pack();
-        pvm_pkint(&packed.size, 1, 1);
-        pvm_pkint(packed.data, packed.size * packed.size * 3, 1);
-        pvm_pkint(packed.rows, packed.size * packed.size, 1);
-        pvm_pkint(packed.cols, packed.size * packed.size, 1);
+        pvm_pkint(&packedResult.size, 1, 1);
+        for(int i = 0; i < packedResult.size; ++i) {
+            pvm_pkint(packedResult.data[i], packedResult.size * 3, 1);
+        }
+        for(int i = 0; i < packedResult.size; ++i) {
+            pvm_pkint(packedResult.rows[i], packedResult.size, 1);
+        }
+        for(int i = 0; i < packedResult.size; ++i) {
+            pvm_pkint(packedResult.cols[i], packedResult.size, 1);
+        }
         pvm_send(tid[2], 0);
     }
 
@@ -55,10 +74,15 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-Color matchColor(const Color& color) {
-    Color out;
-    out.R = (color.R < 128)?0:255;
-    out.G = (color.G < 128)?0:255;
-    out.B = (color.B < 128)?0:255;
+std::vector<Color> matchColor(int row, Image img) {
+    std::vector<Color> out;
+    for(int i = 0; i < img.getSize(); ++i) {
+        Color color = img(row, i);
+        Color tmp;
+        tmp.R = (color.R < 128)?0:255;
+        tmp.G = (color.G < 128)?0:255;
+        tmp.B = (color.B < 128)?0:255;
+        out.push_back(tmp);
+    }
     return out;
 }

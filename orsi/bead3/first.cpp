@@ -4,7 +4,7 @@
 #include "model.hpp"
 #include "pvm3.h"
 
-Color average(int i, int j, int newSize, Image img);
+Color average(int x, int y, int newSize, Image img);
 
 int main(int argc, char** argv) {
     int scale;
@@ -12,21 +12,37 @@ int main(int argc, char** argv) {
     int tid[3];
     int ptid = pvm_parent();
 
+    debug << "first: waiting for parent\n";
+    debug.flush();
+
     pvm_recv(ptid, 0);
 
     pvm_upkint(tid, 3, 1);
     pvm_upkint(&imagesCount, 1, 1);
 
+    debug << "first: got tid, count waiting\n";
+    debug.flush();
     pvm_recv(ptid, 0);
     pvm_upkint(&scale, 1, 1);
+    debug << "first: got scale\n";
 
     for(int i = 0; i < imagesCount; ++i) {
+        debug << "first: waiting for image\n";
+        debug.flush();
         pvm_recv(ptid, 0);
+        debug << "first: got iamge\n";
+        debug.flush();
         PackedImage packed;
         pvm_upkint(&packed.size, 1, 1);
-        pvm_upkint(packed.data, packed.size * packed.size * 3, 1);
-        pvm_upkint(packed.rows, packed.size * packed.size, 1);
-        pvm_upkint(packed.cols, packed.size * packed.size, 1);
+        for(int i = 0; i < packed.size; ++i) {
+            pvm_upkint(packed.data[i], packed.size * 3, 1);
+        }
+        for(int i = 0; i < packed.size; ++i) {
+            pvm_upkint(packed.rows[i], packed.size, 1);
+        }
+        for(int i = 0; i < packed.size; ++i) {
+            pvm_upkint(packed.cols[i], packed.size, 1);
+        }
         
         Image img(packed);
         int newSize = img.getSize() / (100 / scale);
@@ -49,20 +65,26 @@ int main(int argc, char** argv) {
         pvm_initsend(PvmDataDefault);
 
         PackedImage packedResult = result.pack();
-        pvm_pkint(&packed.size, 1, 1);
-        pvm_pkint(packed.data, packed.size * packed.size * 3, 1);
-        pvm_pkint(packed.rows, packed.size * packed.size, 1);
-        pvm_pkint(packed.cols, packed.size * packed.size, 1);
+        pvm_pkint(&packedResult.size, 1, 1);
+        for(int i = 0; i < packedResult.size; ++i) {
+            pvm_pkint(packedResult.data[i], packedResult.size * 3, 1);
+        }
+        for(int i = 0; i < packedResult.size; ++i) {
+            pvm_pkint(packedResult.rows[i], packedResult.size, 1);
+        }
+        for(int i = 0; i < packedResult.size; ++i) {
+            pvm_pkint(packedResult.cols[i], packedResult.size, 1);
+        }
         pvm_send(tid[1], 0);
     }
     pvm_exit();
     return 0;
 }
 
-Color average(int i, int j, int scale, Image img) {
+Color average(int x, int y, int scale, Image img) {
     Color out;
-    for(int i = 0; i < scale; ++i) {
-        for(int j = 0; j < scale; ++j) {
+    for(int i = x; i < x + scale; ++i) {
+        for(int j = y; j < y + scale; ++j) {
             out.R += img(i, j).R;
             out.G += img(i, j).G;
             out.B += img(i, j).B;
