@@ -15,8 +15,7 @@ int main(int argc, char** argv) {
     std::vector<Image> images = read(argv[2]);
     int imagesCount = images.size();
     std::vector<Image> result;
-
-    result.resize(images.size());
+    
     int tid[3];
 
     auto start = std::chrono::steady_clock::now();
@@ -28,12 +27,12 @@ int main(int argc, char** argv) {
         pvm_initsend(PvmDataDefault);
         pvm_pkint(tid, 3, 1);
         pvm_pkint(&imagesCount, 1, 1);
-        pvm_send(tid[i], 0);
+        pvm_send(tid[i], 0); 
     }
 
     pvm_initsend(PvmDataDefault);
     pvm_pkint(&scale, 1, 1);
-    pvm_send(tid[0], 0);
+    pvm_send(tid[0], 1);
     for(size_t i = 0; i < images.size(); ++i) {
         pvm_initsend(PvmDataDefault);
         PackedImage packed = images.at(i).pack();
@@ -47,18 +46,15 @@ int main(int argc, char** argv) {
         for(int i = 0; i < packed.size; ++i) {
             pvm_pkint(packed.cols[i], packed.size, 1);
         }
-        pvm_send(tid[0], 0);
+        pvm_send(tid[0], i+2);
     }
 
-    debug << "master: waiting for a processed picture\n";
-    debug.flush();
-
     for(size_t i = 0; i < images.size(); ++i) {
-        pvm_recv(tid[2], 0);
-        PackedImage packed;
+        pvm_recv(tid[2], i+2);
+        PackedImage packed; 
         pvm_upkint(&packed.size, 1, 1);
         for(int i = 0; i < packed.size; ++i) {
-            pvm_upkint(packed.data[i], packed.size * 3, 1);
+            pvm_upkint(packed.data[i], packed.size * 3, 1); 
         }
         for(int i = 0; i < packed.size; ++i) {
             pvm_upkint(packed.rows[i], packed.size, 1);
@@ -66,7 +62,7 @@ int main(int argc, char** argv) {
         for(int i = 0; i < packed.size; ++i) {
             pvm_upkint(packed.cols[i], packed.size, 1);
         }
-        result.at(i) = Image(packed);
+        result.push_back(Image(packed));
     }
 
     write(argv[3], result);
@@ -84,10 +80,9 @@ std::vector<Image> read(std::string path) {
 
     std::vector<Image> out;
     for(int i = 0; i < size; ++i) {
-        Image temp;
+        Image temp; 
         file >> temp;
         out.push_back(temp);
-
     }
 
     return out;
@@ -96,6 +91,7 @@ std::vector<Image> read(std::string path) {
 void write(std::string path, std::vector<Image> result) {
     std::ofstream file(path);
     for(auto img : result) {
+        std::cout << img << std::endl;
         file << img;
     }
 }

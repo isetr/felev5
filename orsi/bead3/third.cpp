@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     pvm_upkint(&imagesCount, 1, 1);   
 
     for(int i = 0; i < imagesCount; ++i) {    
-        pvm_recv(tid[1], 0);   
+        pvm_recv(tid[1], i+2);   
         PackedImage packed;
         pvm_upkint(&packed.size, 1, 1);
         for(int i = 0; i < packed.size; ++i) {
@@ -32,6 +32,9 @@ int main(int argc, char** argv) {
         Image img(packed);
         int size = img.getSize();
 
+        dt << i << " image unpacked:\n" << img;
+        dt.flush();
+
         std::vector<std::future<std::vector<int>>> rows;
         rows.resize(size);
         std::vector<std::future<std::vector<int>>> cols;
@@ -41,7 +44,6 @@ int main(int argc, char** argv) {
             cols.at(i) = (std::async(std::launch::async, calcCols, i, img));
         }
 
-        Image result(size);
         for(int i = 0; i < size; ++i) {
             std::vector<int> r = rows.at(i).get();
             std::vector<int> c = cols.at(i).get();
@@ -53,7 +55,11 @@ int main(int argc, char** argv) {
 
         pvm_initsend(PvmDataDefault);
 
-        PackedImage packedResult = result.pack();
+        PackedImage packedResult = img.pack();
+
+        dt << i << " image packed:\n" << img;
+        dt.flush(); 
+
         pvm_pkint(&packedResult.size, 1, 1);
         for(int i = 0; i < packedResult.size; ++i) {
             pvm_pkint(packedResult.data[i], packedResult.size * 3, 1);
@@ -64,7 +70,7 @@ int main(int argc, char** argv) {
         for(int i = 0; i < packedResult.size; ++i) {
             pvm_pkint(packedResult.cols[i], packedResult.size, 1);
         }
-        pvm_send(ptid, 0);
+        pvm_send(ptid, i+2);
     }
 
     pvm_exit();
@@ -83,14 +89,14 @@ std::vector<int> calcRows(int i, Image img) {
             out.push_back(s);
         }
     }
-    for(int j = 0; j < out.size() - img.getSize(); ++j) out.push_back(0);
+    for(int j = 0; j < img.getSize() - out.size(); ++j) out.push_back(0);
     return out;
 }
 
 std::vector<int> calcCols(int i, Image img) {
     std::vector<int> out;
     int s = 1;
-    for(int j = 0; j < img.getSize() - 1; ++j) {
+    for(int j = 0; j < img.getSize(); ++j) {
         if(j == img.getSize() - 1) {
             out.push_back(s);
         } else if(img(j, i) == img(j + 1, i)) {
@@ -99,6 +105,6 @@ std::vector<int> calcCols(int i, Image img) {
             out.push_back(s);
         }
     }
-    for(size_t j = 0; j < out.size() - img.getSize(); ++j) out.push_back(0);
+    for(size_t j = 0; j < img.getSize() - out.size(); ++j) out.push_back(0);
     return out;
 }

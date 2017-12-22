@@ -2,7 +2,10 @@
 #include <vector>
 #include <fstream>
 
-std::ofstream debug("debug.txt");
+std::ofstream dm("debug/m.debug");
+std::ofstream df("debug/f.debug");
+std::ofstream ds("debug/s.debug");
+std::ofstream dt("debug/t.debug");
 
 // COLOR
 struct Color {
@@ -14,7 +17,6 @@ struct Color {
 
 std::istream& operator>>(std::istream& is, Color& color) {
     is >> color.R >> color.G >> color.B;
-    debug << "color-read: " << color.R << " " << color.G << " " << color.B << "\n";
     return is;
 }
 
@@ -57,7 +59,7 @@ public:
             rows.at(i).resize(size);
             cols.at(i).resize(size);
             for(int j = 0; j < size; ++j) {
-                data.at(i).at(j) = BLACK;
+                data.at(i).at(j) = Color(-1,-1,-1);
                 rows.at(i).at(j) = 0;
                 cols.at(i).at(j) = 0;
             }
@@ -109,19 +111,17 @@ public:
         // data
         out.size = size;
         for(int i = 0; i < size; ++i) {
-            for(int j = 0; j < size; j += 3) {
-                out.data[i][j] = data.at(i).at(j).R;
-                out.data[i][j + 1] = data.at(i).at(j).G;
-                out.data[i][j + 2] = data.at(i).at(j).B;
+            for(int j = 0; j < size; ++j) {
+                out.data[i][j*3] = data.at(i).at(j).R;
+                out.data[i][j*3 + 1] = data.at(i).at(j).G;
+                out.data[i][j*3 + 2] = data.at(i).at(j).B;
             }
         }
         // rows, cols
-        if(rows.size() > 0 && cols.size() > 0) {
-            for(int i = 0; i < size; ++i) {
-                for(int j = 0; j < size; ++j) {
-                    out.rows[i][j] = rows.at(i).at(j);
-                    out.cols[i][j] = rows.at(i).at(j);
-                }
+        for(int i = 0; i < size; ++i) {
+            for(int j = 0; j < size; ++j) {
+                out.rows[i][j] = rows.at(i).at(j);
+                out.cols[i][j] = rows.at(i).at(j);
             }
         }
 
@@ -138,12 +138,9 @@ private:
 std::istream& operator>>(std::istream& is, Image& image) {
     int size;
     is >> size;
-    debug << "image-read: size " << size << "\n";
     image = Image(size);
-    debug << "image-read: image resized\n";
-    for(int i; i < size; ++i) {
-        for(int j; j < size; ++j) {
-            debug << "image-read: (" << i << "," << j << ")\n";
+    for(int i = 0; i < size; ++i) {
+        for(int j = 0; j < size; ++j) {
             is >> image(i, j);
         }
     }
@@ -153,19 +150,19 @@ std::istream& operator>>(std::istream& is, Image& image) {
 std::ostream& operator<<(std::ostream& os, Image image) {
     int size = image.getSize();
     for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++i) {
+        for(int j = 0; j < size; ++j) {
             os << image(i, j) << " ";
         }
         os << std::endl;
     }
     for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++i) {
+        for(int j = 0; j < size; ++j) {
             if(image.row(i, j) != 0) os << image.row(i, j) << " ";
         }
         os << std::endl;
     }
     for(int i = 0; i < size; ++i) {
-        for(int j = 0; j < size; ++i) {
+        for(int j = 0; j < size; ++j) {
             if(image.col(i, j) != 0) os << image.col(i, j) << " ";
         }
         os << std::endl;

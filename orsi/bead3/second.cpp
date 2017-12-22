@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     pvm_upkint(&imagesCount, 1, 1);
 
     for(int i = 0; i < imagesCount; ++i) {
-        pvm_recv(tid[0], 0);
+        pvm_recv(tid[0], i+2);
         PackedImage packed;
         pvm_upkint(&packed.size, 1, 1);
         for(int i = 0; i < packed.size; ++i) {
@@ -32,23 +32,29 @@ int main(int argc, char** argv) {
         Image img(packed);
         int size = img.getSize();
 
+        ds << i << "image unpacked:\n" << img; 
+        ds.flush();
+ 
         std::vector<std::future<std::vector<Color>>> newColorsCalc;
         newColorsCalc.resize(size);
         for(int i = 0; i < size; ++i) {
             newColorsCalc.at(i) = std::async(std::launch::async, matchColor, i, img);
         }
 
-        Image result(size);
         for(int i = 0; i < size; ++i) {
             std::vector<Color> tmp = newColorsCalc.at(i).get();
             for(int j = 0; j < size; ++j) {
-                result(i, j) = tmp.at(j);
+                img(i, j) = tmp.at(j);
             }
         }
 
         pvm_initsend(PvmDataDefault);
 
-        PackedImage packedResult = result.pack();
+        PackedImage packedResult = img.pack();
+
+        ds << i << "image packed:\n" << img; 
+        ds.flush();
+
         pvm_pkint(&packedResult.size, 1, 1);
         for(int i = 0; i < packedResult.size; ++i) {
             pvm_pkint(packedResult.data[i], packedResult.size * 3, 1);
@@ -59,7 +65,7 @@ int main(int argc, char** argv) {
         for(int i = 0; i < packedResult.size; ++i) {
             pvm_pkint(packedResult.cols[i], packedResult.size, 1);
         }
-        pvm_send(tid[2], 0);
+        pvm_send(tid[2], i+2);
     }
 
     pvm_exit();
