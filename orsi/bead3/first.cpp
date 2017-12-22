@@ -12,26 +12,16 @@ int main(int argc, char** argv) {
     int tid[3];
     int ptid = pvm_parent();
 
-    debug << "first: waiting for parent\n";
-    debug.flush();
-
     pvm_recv(ptid, 0);
 
     pvm_upkint(tid, 3, 1);
     pvm_upkint(&imagesCount, 1, 1);
 
-    debug << "first: got tid, count waiting\n";
-    debug.flush();
     pvm_recv(ptid, 0);
     pvm_upkint(&scale, 1, 1);
-    debug << "first: got scale\n";
 
     for(int i = 0; i < imagesCount; ++i) {
-        debug << "first: waiting for image\n";
-        debug.flush();
         pvm_recv(ptid, 0);
-        debug << "first: got iamge\n";
-        debug.flush();
         PackedImage packed;
         pvm_upkint(&packed.size, 1, 1);
         for(int i = 0; i < packed.size; ++i) {
@@ -47,18 +37,18 @@ int main(int argc, char** argv) {
         Image img(packed);
         int newSize = img.getSize() / (100 / scale);
 
-        std::vector<std::vector<std::future<Color>>> newColorsCalc(newSize);
-        for(int i = 0; i < newSize; ++i) {
-            newColorsCalc.at(i).resize(newSize);
-            for(int j = 0; j < newSize; ++j) {
-                newColorsCalc.at(i).at(j) = std::async(std::launch::async, average, i, j, (100/scale), img);
-            }
-        }
+        // std::vector<std::vector<std::future<Color>>> newColorsCalc(newSize);
+        // for(int i = 0; i < newSize; ++i) {
+        //     newColorsCalc.at(i).resize(newSize);
+        //     for(int j = 0; j < newSize; ++j) {
+        //         newColorsCalc.at(i).at(j) = std::async(std::launch::async, average, i, j, (100/scale), img);
+        //     }
+        // }
 
         Image result(newSize);
         for(int i = 0; i < newSize; ++i) {
             for(int j = 0; j < newSize; ++j) {
-                result(i, j) = newColorsCalc.at(i).at(j).get();
+                result(i, j) = BLACK; // newColorsCalc.at(i).at(j).get();
             }
         }
 

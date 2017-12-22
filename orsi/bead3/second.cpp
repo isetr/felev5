@@ -11,20 +11,12 @@ int main(int argc, char** argv) {
     int tid[3];
     int imagesCount;
 
-    debug << "second: waiting for ptid\n";
-    debug.flush();
     pvm_recv(ptid, 0);
     pvm_upkint(tid, 3, 1);
     pvm_upkint(&imagesCount, 1, 1);
-    debug << "second: got ptid\n";
-    debug.flush();
 
     for(int i = 0; i < imagesCount; ++i) {
-        debug << "second: waiting for image\n";
-        debug.flush();
         pvm_recv(tid[0], 0);
-        debug << "second: got image\n";
-        debug.flush();
         PackedImage packed;
         pvm_upkint(&packed.size, 1, 1);
         for(int i = 0; i < packed.size; ++i) {
