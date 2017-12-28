@@ -8,7 +8,7 @@
 #include "pvm3.h"
 
 std::vector<Image> read(std::string path);
-void write(std::string path, std::vector<Image> result);
+void write(std::string path, const std::vector<Image>& result);
 
 int main(int argc, char** argv) {
     int scale = atoi(argv[1]);
@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
         pvm_pkint(tid, 3, 1);
         pvm_pkint(&imagesCount, 1, 1);
         pvm_send(tid[i], 0); 
-    }
+    }  
 
     pvm_initsend(PvmDataDefault);
     pvm_pkint(&scale, 1, 1);
@@ -56,11 +56,11 @@ int main(int argc, char** argv) {
         for(int i = 0; i < packed.size; ++i) {
             pvm_upkint(packed.data[i], packed.size * 3, 1); 
         }
-        for(int i = 0; i < packed.size; ++i) {
-            pvm_upkint(packed.rows[i], packed.size, 1);
+        for(int j = 0; j < packed.size; ++j) {
+            pvm_upkint(packed.rows[j], packed.size, 1);
         }
-        for(int i = 0; i < packed.size; ++i) {
-            pvm_upkint(packed.cols[i], packed.size, 1);
+        for(int j = 0; j < packed.size; ++j) {
+            pvm_upkint(packed.cols[j], packed.size, 1);
         }
         result.push_back(Image(packed));
     }
@@ -88,10 +88,9 @@ std::vector<Image> read(std::string path) {
     return out;
 }
 
-void write(std::string path, std::vector<Image> result) {
+void write(std::string path, const std::vector<Image>& result) {
     std::ofstream file(path);
     for(auto img : result) {
-        std::cout << img << std::endl;
         file << img;
     }
 }

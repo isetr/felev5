@@ -20,7 +20,7 @@ std::istream& operator>>(std::istream& is, Color& color) {
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, const Color color) {
+std::ostream& operator<<(std::ostream& os, const Color& color) {
     os << "(" << color.R << "," << color.G << "," << color.B << ")";
     return os;
 }
@@ -66,7 +66,7 @@ public:
         }
 
     }
-    Image(PackedImage packed) {
+    Image(const PackedImage& packed) {
         size = packed.size;
         data.resize(size);
         rows.resize(size);
@@ -104,7 +104,7 @@ public:
         return cols.at(i).at(j);
     }
 
-    int getSize() { return size; } const
+    int getSize() const { return size; }
 
     PackedImage pack() {
         PackedImage out;
@@ -115,14 +115,9 @@ public:
                 out.data[i][j*3] = data.at(i).at(j).R;
                 out.data[i][j*3 + 1] = data.at(i).at(j).G;
                 out.data[i][j*3 + 2] = data.at(i).at(j).B;
-            }
-        }
-        // rows, cols
-        for(int i = 0; i < size; ++i) {
-            for(int j = 0; j < size; ++j) {
                 out.rows[i][j] = rows.at(i).at(j);
-                out.cols[i][j] = rows.at(i).at(j);
-            }
+                out.cols[i][j] = cols.at(i).at(j);
+            } 
         }
 
         return out;
@@ -147,7 +142,7 @@ std::istream& operator>>(std::istream& is, Image& image) {
     return is;
 }
 
-std::ostream& operator<<(std::ostream& os, Image image) {
+std::ostream& operator<<(std::ostream& os, const Image& image) {
     int size = image.getSize();
     for(int i = 0; i < size; ++i) {
         for(int j = 0; j < size; ++j) {

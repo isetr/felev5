@@ -2,7 +2,7 @@ BINS	= master first second third
 
 ################################################################################
 
-OPTIONS	= -std=c++11 -lpthread
+OPTIONS	= -std=c++11 -lpthread -O2
 
 BDIR	= $(HOME)/pvm3/bin
 XDIR	= $(BDIR)/$(PVM_ARCH)

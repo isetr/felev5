@@ -4,7 +4,7 @@
 #include "model.hpp"
 #include "pvm3.h"
 
-std::vector<Color> matchColor(int row, Image img);
+std::vector<Color> matchColor(int row, const Image& img);
 
 int main(int argc, char** argv) {
     int ptid = pvm_parent();
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
         std::vector<std::future<std::vector<Color>>> newColorsCalc;
         newColorsCalc.resize(size);
         for(int i = 0; i < size; ++i) {
-            newColorsCalc.at(i) = std::async(std::launch::async, matchColor, i, img);
+            newColorsCalc.at(i) = std::async(std::launch::async, matchColor, i, std::ref(img));
         }
 
         for(int i = 0; i < size; ++i) {
@@ -46,8 +46,8 @@ int main(int argc, char** argv) {
             for(int j = 0; j < size; ++j) {
                 img(i, j) = tmp.at(j);
             }
-        }
-
+        } 
+ 
         pvm_initsend(PvmDataDefault);
 
         PackedImage packedResult = img.pack();
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-std::vector<Color> matchColor(int row, Image img) {
+std::vector<Color> matchColor(int row, const Image& img) {
     std::vector<Color> out;
     for(int i = 0; i < img.getSize(); ++i) {
         Color color = img(row, i);

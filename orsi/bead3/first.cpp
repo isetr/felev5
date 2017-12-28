@@ -5,11 +5,11 @@
 #include "model.hpp"
 #include "pvm3.h"
 
-Color average(int x, int y, float scale, std::vector<std::vector<Color>> img);
-std::vector<std::vector<Color>> scaleImage(std::vector<std::vector<Color>> img, int scale, int level, int x, int y);
+Color average(int x, int y, float scale, const std::vector<std::vector<Color>>& img);
+std::vector<std::vector<Color>> scaleImage(const std::vector<std::vector<Color>>& img, int scale, int level, int x, int y);
 
 int main(int argc, char** argv) {
-    int scale;
+    int scale; 
     int imagesCount;
     int tid[3];
     int ptid = pvm_parent();
@@ -41,26 +41,32 @@ int main(int argc, char** argv) {
         df << i << "image unpacked:\n" << img; 
         df.flush();
 
-        int newSize = img.getSize() / (100 / scale);
+        Image result;
 
-        std::vector<std::vector<Color>> imgdata;
-        imgdata.resize(img.getSize());
-        for(int i = 0; i < img.getSize(); ++i) {
-            imgdata.at(i).resize(img.getSize());
-            for(int j = 0; j < img.getSize(); ++j) {
-                imgdata.at(i).at(j) = img(i,j);
+        if(scale != 100) {
+            int newSize = img.getSize() / (100 / scale);
+
+            std::vector<std::vector<Color>> imgdata;
+            imgdata.resize(img.getSize());
+            for(int i = 0; i < img.getSize(); ++i) {
+                imgdata.at(i).resize(img.getSize());
+                for(int j = 0; j < img.getSize(); ++j) {
+                    imgdata.at(i).at(j) = img(i,j);
+                }
             }
-        }
 
-        std::future<std::vector<std::vector<Color>>> calcScaledImage = std::async(std::launch::async, scaleImage, imgdata, scale, 0, 0, 0);
-        std::vector<std::vector<Color>> newimgdata = calcScaledImage.get();
+            std::future<std::vector<std::vector<Color>>> calcScaledImage = std::async(std::launch::async, scaleImage, std::ref(imgdata), scale, 0, 0, 0);
+            std::vector<std::vector<Color>> newimgdata = calcScaledImage.get();
 
 
-        Image result(newSize);
-        for(int i = 0; i < newSize; ++i) {
-            for(int j = 0; j < newSize; ++j) {
-                result(i, j) = newimgdata.at(i).at(j);
+            result = Image(newSize);
+            for(int i = 0; i < newSize; ++i) {
+                for(int j = 0; j < newSize; ++j) {
+                    result(i, j) = newimgdata.at(i).at(j);
+                }
             }
+        } else {
+            result = img;
         }
 
         pvm_initsend(PvmDataDefault);
@@ -68,7 +74,7 @@ int main(int argc, char** argv) {
         PackedImage packedResult = result.pack();
 
         df << i << " image result packed: \n" << result;
-        df.flush();
+        df.flush(); 
 
         pvm_pkint(&packedResult.size, 1, 1);
         for(int i = 0; i < packedResult.size; ++i) {
@@ -86,7 +92,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-Color average(int x, int y, float scale, std::vector<std::vector<Color>> img) {
+Color average(int x, int y, float scale, const std::vector<std::vector<Color>>& img) {
     Color out;
     float r = 0;
     float g = 0;
@@ -98,24 +104,66 @@ Color average(int x, int y, float scale, std::vector<std::vector<Color>> img) {
             b += img.at(i).at(j).B;
         }
     }
-    out.R = std::ceil(r / (float)(scale * scale));
-    out.G = std::ceil(g / (float)(scale * scale));
-    out.B = std::ceil(b / (float)(scale * scale)); 
+    out.R = std::floor(r / (float)(scale * scale));
+    out.G = std::floor(g / (float)(scale * scale));
+    out.B = std::floor(b / (float)(scale * scale)); 
     return out;
 }
 
-std::vector<std::vector<Color>> scaleImage(std::vector<std::vector<Color>> img, int scale, int level, int x, int y) {
+std::vector<std::vector<Color>> scaleImage(const std::vector<std::vector<Color>>& img, int scale, int level, int x, int y) {
     int size = img.size();
     int p = 100/scale;
     int newSize = size/p;
     std::vector<std::vector<Color>> out;
-    out.resize(newSize);
 
-    for(int i = 0; i < newSize; ++i) {
-        out.at(i).resize(newSize);
-        for(int j = 0; j < newSize; ++j) {
-            out.at(i).at(j) = average(i, j, p, img);
+    if(level == 0) {
+        out.resize(newSize);
+        for(size_t i = 0; i < out.size(); ++i) out.at(i).resize(newSize);
+
+        if(newSize == 1) {
+            out.at(0).at(0) = average(0, 0, p, img);
+        } else {
+            std::vector<std::vector<std::future<std::vector<std::vector<Color>>>>> quarters;
+            quarters.resize(2);
+            for(int i = 0; i < 2; ++i) {
+                for(int j = 0; j < 2; ++j) {
+                    quarters.at(i).push_back( 
+                        std::async(std::launch::async, 
+                            scaleImage, 
+                            std::ref(img), 
+                            scale, 
+                            level + 1, 
+                            i * (newSize / 2), 
+                            j * (newSize / 2))
+                        );
+                }
+            }
+
+            for(size_t i = 0; i < quarters.size(); ++i) {
+                for(size_t j = 0; j < quarters.at(i).size(); ++j) {
+                    std::vector<std::vector<Color>> q = quarters.at(i).at(j).get();
+                    for(size_t k = 0; k < q.size(); ++k) {
+                        for(size_t l = 0; l < q.at(k).size() ; ++l) {
+                            try {
+                            out.at(i * (newSize / 2) + k).at(j * (newSize / 2) + l) = 
+                                q.at(k).at(l);
+                            } catch(...) {
+                                std::cout << "eyy" << i << j << k << l << std::endl;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        out.resize(newSize / (2*level));
+        for(size_t i = 0; i < out.size(); ++i) out.at(i).resize(newSize / (2*level));
+        for(int i = x; i < x + (newSize / (2*level)); ++i) {
+            for(int j = y; j < y + (newSize / (2*level)); ++j) {
+                out.at(i).at(j) = average(i, j, p, img);
+            }
         }
     }
+
     return out;
 }
