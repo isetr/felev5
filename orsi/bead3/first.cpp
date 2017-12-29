@@ -58,7 +58,6 @@ int main(int argc, char** argv) {
             std::future<std::vector<std::vector<Color>>> calcScaledImage = std::async(std::launch::async, scaleImage, std::ref(imgdata), scale, 0, 0, 0);
             std::vector<std::vector<Color>> newimgdata = calcScaledImage.get();
 
-
             result = Image(newSize);
             for(int i = 0; i < newSize; ++i) {
                 for(int j = 0; j < newSize; ++j) {
@@ -118,9 +117,10 @@ std::vector<std::vector<Color>> scaleImage(const std::vector<std::vector<Color>>
     int size = img.size();
     int p = 100/scale;
     int newSize = size/p;
-    std::vector<std::vector<Color>> out;
 
     if(level == 0) {
+        std::vector<std::vector<Color>> out;
+
         out.resize(newSize);
         for(size_t i = 0; i < out.size(); ++i) out.at(i).resize(newSize);
 
@@ -141,33 +141,34 @@ std::vector<std::vector<Color>> scaleImage(const std::vector<std::vector<Color>>
                             i * (newSize / 2), 
                             j * (newSize / 2))
                         );
-                    }
-                    std::cout << "a" << std::endl;
+                }
             }
 
-            for(size_t i = 0; i < quarters.size(); ++i) {
-                for(size_t j = 0; j < quarters.at(i).size(); ++j) {
+            for(size_t i = 0; i < 2; ++i) {
+                for(size_t j = 0; j < 2; ++j) {
                     std::vector<std::vector<Color>> q = quarters.at(i).at(j).get();
                     for(size_t k = 0; k < q.size(); ++k) {
                         for(size_t l = 0; l < q.at(k).size(); ++l) {
-                            std::cout << "b" << i << j << k << l << std::endl;
                             out.at(i * (newSize / 2) + k).at(j * (newSize / 2) + l) = 
                                 q.at(k).at(l);
-                            std::cout << "c" << i << j << k << l << std::endl;
                         }
                     }
                 }
             }
         }
+
+        return out;
     } else {
+        std::vector<std::vector<Color>> out;
+
         out.resize(newSize / (2*level));
         for(size_t i = 0; i < out.size(); ++i) out.at(i).resize(newSize / (2*level));
-        for(int i = x; i < x + (newSize / (2*level)); ++i) {
-            for(int j = y; j < y + (newSize / (2*level)); ++j) {
-                out.at(i).at(j) = average(i, j, p, img);
+
+        for(int i = 0; i < newSize / (2*level); ++i) {
+            for(int j = 0; j < newSize / (2*level); ++j) {
+                out.at(i).at(j) = average(i + x, j + y, p, img);
             }
         }
+        return out;
     }
-
-    return out;
 }
