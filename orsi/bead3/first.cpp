@@ -38,9 +38,6 @@ int main(int argc, char** argv) {
         
         Image img(packed);
 
-        df << i << "image unpacked:\n" << img; 
-        df.flush();
-
         Image result;
 
         if(scale != 100) {
@@ -61,11 +58,7 @@ int main(int argc, char** argv) {
             result = Image(newSize);
             for(int i = 0; i < newSize; ++i) {
                 for(int j = 0; j < newSize; ++j) {
-                    try {
-                        result(i, j) = newimgdata.at(i).at(j);
-                    } catch(...) {
-                        std::cout << "fuck" << std::endl;
-                    }
+                    result(i, j) = newimgdata.at(i).at(j);
                 }
             }
         } else {
@@ -75,9 +68,6 @@ int main(int argc, char** argv) {
         pvm_initsend(PvmDataDefault);
 
         PackedImage packedResult = result.pack();
-
-        df << i << " image result packed: \n" << result;
-        df.flush(); 
 
         pvm_pkint(&packedResult.size, 1, 1);
         for(int i = 0; i < packedResult.size; ++i) {

@@ -31,9 +31,6 @@ int main(int argc, char** argv) {
 
         Image img(packed);
         int size = img.getSize();
-
-        ds << i << "image unpacked:\n" << img; 
-        ds.flush();
  
         std::vector<std::future<std::vector<Color>>> newColorsCalc;
         newColorsCalc.resize(size);
@@ -51,9 +48,6 @@ int main(int argc, char** argv) {
         pvm_initsend(PvmDataDefault);
 
         PackedImage packedResult = img.pack();
-
-        ds << i << "image packed:\n" << img; 
-        ds.flush();
 
         pvm_pkint(&packedResult.size, 1, 1);
         for(int i = 0; i < packedResult.size; ++i) {

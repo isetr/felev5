@@ -32,18 +32,12 @@ int main(int argc, char** argv) {
         Image img(packed);
         int size = img.getSize();
 
-        dt << i << " image unpacked (size " << size << ")\n" << img;
-        dt.flush();
-
         std::vector<std::future<std::vector<int>>> rows;
         std::vector<std::future<std::vector<int>>> cols;
         for(int i = 0; i < size; ++i) {
             rows.push_back(std::async(std::launch::async, calcRows, i, std::ref(img)));
             cols.push_back(std::async(std::launch::async, calcCols, i, std::ref(img)));
         }
-
-        dt << "got the labels\n";
-        dt.flush();
 
         for(int i = 0; i < size; ++i) {
             std::vector<int> r = rows.at(i).get();
@@ -54,15 +48,9 @@ int main(int argc, char** argv) {
             } 
         }
 
-        dt << "label written into image\n";
-        dt.flush();
-
         pvm_initsend(PvmDataDefault);
 
         PackedImage packedResult = img.pack();
-
-        dt << i << " image packed:\n" << Image(img.pack());
-        dt.flush(); 
 
         pvm_pkint(&packedResult.size, 1, 1);
         for(int i = 0; i < packedResult.size; ++i) {
