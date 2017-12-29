@@ -62,7 +62,11 @@ int main(int argc, char** argv) {
             result = Image(newSize);
             for(int i = 0; i < newSize; ++i) {
                 for(int j = 0; j < newSize; ++j) {
-                    result(i, j) = newimgdata.at(i).at(j);
+                    try {
+                        result(i, j) = newimgdata.at(i).at(j);
+                    } catch(...) {
+                        std::cout << "fuck" << std::endl;
+                    }
                 }
             }
         } else {
@@ -126,8 +130,9 @@ std::vector<std::vector<Color>> scaleImage(const std::vector<std::vector<Color>>
             std::vector<std::vector<std::future<std::vector<std::vector<Color>>>>> quarters;
             quarters.resize(2);
             for(int i = 0; i < 2; ++i) {
+                quarters.at(i).resize(2);
                 for(int j = 0; j < 2; ++j) {
-                    quarters.at(i).push_back( 
+                    quarters.at(i).at(j) = ( 
                         std::async(std::launch::async, 
                             scaleImage, 
                             std::ref(img), 
@@ -136,20 +141,19 @@ std::vector<std::vector<Color>> scaleImage(const std::vector<std::vector<Color>>
                             i * (newSize / 2), 
                             j * (newSize / 2))
                         );
-                }
+                    }
+                    std::cout << "a" << std::endl;
             }
 
             for(size_t i = 0; i < quarters.size(); ++i) {
                 for(size_t j = 0; j < quarters.at(i).size(); ++j) {
                     std::vector<std::vector<Color>> q = quarters.at(i).at(j).get();
                     for(size_t k = 0; k < q.size(); ++k) {
-                        for(size_t l = 0; l < q.at(k).size() ; ++l) {
-                            try {
+                        for(size_t l = 0; l < q.at(k).size(); ++l) {
+                            std::cout << "b" << i << j << k << l << std::endl;
                             out.at(i * (newSize / 2) + k).at(j * (newSize / 2) + l) = 
                                 q.at(k).at(l);
-                            } catch(...) {
-                                std::cout << "eyy" << i << j << k << l << std::endl;
-                            }
+                            std::cout << "c" << i << j << k << l << std::endl;
                         }
                     }
                 }
