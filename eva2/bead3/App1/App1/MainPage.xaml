@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:App1;assembly=App1"
+             xmlns:controls="clr-namespace:DLToolkit.Forms.Controls;assembly=DLToolkit.Forms.Controls.FlowListView"
+             x:Class="App1.MainPage"> 
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- stílusok a vezérlőknek -->
+            <Style x:Key="MainLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="Micro" />
+                <Setter Property="Margin" Value="1" />
+            </Style>
+            <Style x:Key="MainButtonStyle" TargetType="Button">
+                <Setter Property="FontSize" Value="Micro" />
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="BorderRadius" Value="0" />
+                <Setter Property="BorderWidth" Value="0" />
+                <Setter Property="BorderColor" Value="Blue" />
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="HeightRequest" Value="60" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="80"/>
+                <RowDefinition Height="20"/>
+            </Grid.RowDefinitions>
+
+            <Button Text="Új játék" Command="{Binding NewGameCommand}" Style="{StaticResource MainButtonStyle}" Grid.Row="0" HorizontalOptions="Start" />
+            <Button Text="Szünet" Command="{Binding PauseGameCommand}" Style="{StaticResource MainButtonStyle}" Grid.Row="0" HorizontalOptions="End" />
+
+            <ScrollView Grid.Row="1">
+                <controls:FlowListView Grid.Row="1" FlowColumnCount="10" FlowItemsSource="{Binding Fields}" SeparatorVisibility="None">
+                    <!-- a játéktáblát egy sorfolytos listával valósítjuk meg -->
+                    <controls:FlowListView.FlowColumnTemplate>
+                        <DataTemplate>
+                            <Button>
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Type}" Value="0" TargetType="Button">
+                                                <Setter Property="BackgroundColor" Value="Black"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="1" TargetType="Button">
+                                                <Setter Property="BackgroundColor" Value="White"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="2" TargetType="Button">
+                                                <Setter Property="BackgroundColor" Value="Green"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </controls:FlowListView.FlowColumnTemplate>
+                </controls:FlowListView>
+            </ScrollView>
+
+            <Button Text="&lt;" Command="{Binding StepLeft}" Style="{StaticResource MainButtonStyle}" Grid.Row="2" HorizontalOptions="Start" />
+            <Button Text="&gt;" Command="{Binding StepRight}" Style="{StaticResource MainButtonStyle}" Grid.Row="2" HorizontalOptions="End" />
+
+            <StackLayout Orientation="Horizontal" HorizontalOptions="Start" Grid.Row="3">
+                <Label Text="Üzemanyag: " Style="{StaticResource MainLabelStyle}" />
+                <Label Text="{Binding Fuel}" Style="{StaticResource MainLabelStyle}" />
+            </StackLayout>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="End" Grid.Row="3">
+                <Label Text="Játékidő: " Style="{StaticResource MainLabelStyle}" />
+                <Label Text="{Binding GameTime}" Style="{StaticResource MainLabelStyle}" />
+            </StackLayout>
+        </Grid>
+        
+    </ContentPage.Content>
+</ContentPage>
